@@ -1,0 +1,73 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../frontend/dist"
+  },
+  "package": {
+    "productName": "AI Workmate",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "sidecar": true,
+        "open": true
+      },
+      "fs": {
+        "all": false,
+        "readFile": true,
+        "writeFile": true,
+        "createDir": true,
+        "readDir": true
+      },
+      "path": {
+        "all": true
+      },
+      "process": {
+        "all": false,
+        "exit": true
+      },
+      "notification": {
+        "all": true
+      },
+      "window": {
+        "all": false,
+        "center": true,
+        "show": true,
+        "hide": true,
+        "close": true,
+        "setTitle": true,
+        "setMinSize": true,
+        "setMaxSize": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "icon": ["../frontend/public/icon.ico", "../frontend/public/icon.png"],
+      "resources": ["../backend/dist/ai-workmate-backend*"]
+    },
+    "security": {
+      "csp": "default-src 'self' ipc: http://localhost:8000; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;"
+    },
+    "windows": [
+      {
+        "label": "main",
+        "title": "AI Workmate",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "center": true,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false
+      }
+    ]
+  }
+}
