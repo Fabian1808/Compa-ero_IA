@@ -8,7 +8,7 @@ from app.multi_tenancy.middleware import TenantMiddleware
 
 from app.config import settings
 from app.database import init_db, close_db
-from app.api.v1 import auth, emails, tasks, projects, ai, notifications, followups, health, calendar, commitments, deadlines, search, blockers, workmap, connectors, admin, init
+from app.api.v1 import auth, emails, tasks, projects, ai, notifications, followups, health, calendar, commitments, deadlines, search, blockers, workmap, connectors, admin, init, installer
 from app.services.scheduler_service import SchedulerService
 
 # Configure structlog
@@ -80,6 +80,7 @@ app.include_router(workmap.router, prefix=settings.api_prefix)
 app.include_router(connectors.router, prefix=settings.api_prefix)
 app.include_router(admin.router, prefix=settings.api_prefix)
 app.include_router(init.router, prefix=settings.api_prefix)
+app.include_router(installer.router, prefix=settings.api_prefix)
 
 
 @app.get("/")

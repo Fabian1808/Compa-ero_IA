@@ -24,6 +24,9 @@ import { AdminSecurityPage } from '@/pages/AdminSecurityPage';
 import { AdminMetricsPage } from '@/pages/AdminMetricsPage';
 import { AdminAuditLogsPage } from '@/pages/AdminAuditLogsPage';
 import { InitializationPage } from '@/pages/InitializationPage';
+import { FirstRunInstallerPage } from '@/pages/FirstRunInstallerPage';
+import { useEffect, useState } from 'react';
+import { api } from '@/services/api';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -53,13 +56,65 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
 }
 
+function FirstRunRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [firstRunChecked, setFirstRunChecked] = useState(false);
+  const [firstRunNeeded, setFirstRunNeeded] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    // Setup runs before any account is connected, so this check must not wait
+    // for authentication. Otherwise the installer would be unreachable on a
+    // brand-new installation.
+    const checkFirstRun = async () => {
+      try {
+        const response = await api.checkFirstRunNeeded();
+        if (!active) return;
+        setFirstRunNeeded(response.first_run_needed);
+      } catch (err) {
+        console.error('Error checking first run:', err);
+        if (!active) return;
+        // A failed probe must not trap the user on the setup screen.
+        setFirstRunNeeded(false);
+      } finally {
+        if (active) setFirstRunChecked(true);
+      }
+    };
+
+    void checkFirstRun();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (isLoading || !firstRunChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (firstRunNeeded) {
+    return <FirstRunInstallerPage />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 export function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
         <Route path="/init" element={<PublicRoute><InitializationPage /></PublicRoute>} />
-        <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
+        <Route element={<FirstRunRoute><Layout /></FirstRunRoute>}>
           <Route path="/" element={<HomePage />} />
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/projects" element={<ProjectsPage />} />

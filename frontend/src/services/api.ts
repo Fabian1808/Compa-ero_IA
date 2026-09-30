@@ -456,6 +456,52 @@ class ApiService {
     const response = await this.client.post('/init/reset', {});
     return response.data;
   }
+
+  // Installer
+  async getInstallerStatus() {
+    const response = await this.client.get('/installer/status');
+    return response.data;
+  }
+
+  async getInstallProgress() {
+    const response = await this.client.get('/installer/progress');
+    return response.data;
+  }
+
+  async checkDependencies() {
+    const response = await this.client.post('/installer/check');
+    return response.data;
+  }
+
+  async installDependencies(dependencies?: string[]) {
+    const response = await this.client.post('/installer/install', { dependencies });
+    return response.data;
+  }
+
+  async installOllama() {
+    const response = await this.client.post('/installer/install/ollama');
+    return response.data;
+  }
+
+  async installModel(modelName: string) {
+    const response = await this.client.post(`/installer/install/model/${modelName}`);
+    return response.data;
+  }
+
+  async initializeFirstRun() {
+    const response = await this.client.post('/installer/initialize');
+    return response.data;
+  }
+
+  async checkFirstRunNeeded() {
+    const response = await this.client.get('/installer/first-run-needed');
+    return response.data;
+  }
+
+  async markInitialized() {
+    const response = await this.client.post('/installer/mark-initialized');
+    return response.data;
+  }
 }
 
 export const api = new ApiService();
