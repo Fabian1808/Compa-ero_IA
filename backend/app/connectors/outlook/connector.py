@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.connectors.base import Connector, SyncResult
-from app.services.graph_service import GraphClient
+from app.services.graph_service import GraphService
 from app.models.account import Account
 from app.models.email import Email, EmailThread
 from app.models.contact import Contact
@@ -17,10 +17,10 @@ from app.config import settings
 class OutlookConnector(Connector):
     """Microsoft Outlook connector using Microsoft Graph API."""
 
-    def __init__(self, db: AsyncSession, account: Account):
-        self.db = db
+    def __init__(self, graph_service: GraphService, account: Account):
+        self.graph_service = graph_service
         self.account = account
-        self.graph: Optional[GraphClient] = None
+        self._client = None
 
     @property
     def name(self) -> str:
@@ -31,15 +31,13 @@ class OutlookConnector(Connector):
         return settings.ms_graph_scopes_list
 
     async def authenticate(self, credentials: dict) -> bool:
-        self.graph = GraphClient(self.db, self.account)
-        return await self.test_connection()
+        return await self.graph_service.authenticate(self.account)
 
     async def test_connection(self) -> bool:
-        if not self.graph:
-            return False
         try:
-            await self.graph.get_user()
-            return True
+            async with self.graph_service.create_client(self.account) as client:
+                await client.get_user()
+                return True
         except Exception:
             return False
 
@@ -48,77 +46,73 @@ class OutlookConnector(Connector):
         since: datetime | None = None,
         cursor: str | None = None
     ) -> AsyncIterator[SyncResult]:
-        if not self.graph:
-            raise Exception("Not authenticated")
-
-        # Sync messages using delta query
+        """Sync messages, contacts, and calendar events incrementally."""
         delta_link = cursor or self.account.meta.get("delta_link_messages")
         result = SyncResult()
 
-        try:
-            async for page in self.graph.get_messages_delta("inbox", delta_link):
-                for msg_data in page.get("value", []):
-                    if "@removed" in msg_data:
-                        await self._soft_delete_email(msg_data["id"])
-                        result.items_deleted += 1
-                    else:
-                        is_new = await self._upsert_email(msg_data)
-                        if is_new:
-                            result.items_created += 1
+        async with self.graph_service.create_client(self.account) as client:
+            try:
+                async for page in client.get_messages_delta("inbox", delta_link):
+                    for msg_data in page.get("value", []):
+                        if "@removed" in msg_data:
+                            await self._soft_delete_email(msg_data["id"])
+                            result.items_deleted += 1
                         else:
-                            result.items_updated += 1
-                        result.items_processed += 1
+                            is_new = await self._upsert_email(msg_data, client)
+                            if is_new:
+                                result.items_created += 1
+                            else:
+                                result.items_updated += 1
+                            result.items_processed += 1
 
-                # Update delta link
-                if "@odata.deltaLink" in page:
-                    self.account.meta["delta_link_messages"] = page["@odata.deltaLink"]
-                    await self.db.flush()
-                    result.next_cursor = page["@odata.deltaLink"]
+                    # Update delta link
+                    if "@odata.deltaLink" in page:
+                        self.account.meta["delta_link_messages"] = page["@odata.deltaLink"]
+                        await self.db.flush()
+                        result.next_cursor = page["@odata.deltaLink"]
 
+                    yield result
+                    result = SyncResult()
+
+            except Exception as e:
+                result.errors.append(str(e))
                 yield result
-                result = SyncResult()
 
-        except Exception as e:
-            result.errors.append(str(e))
-            yield result
+            # Sync contacts
+            async for page in client.get_contacts():
+                for contact_data in page.get("value", []):
+                    await self._upsert_contact(contact_data)
+                yield SyncResult(items_processed=len(page.get("value", [])))
 
-        # Sync contacts
-        async for page in self.graph.get_contacts():
-            for contact_data in page.get("value", []):
-                await self._upsert_contact(contact_data)
-            yield SyncResult(items_processed=len(page.get("value", [])))
-
-        # Sync calendar events (last 30 days, next 90 days)
-        start = datetime.utcnow().replace(day=1)  # First day of current month
-        end = start.replace(month=start.month + 3 if start.month < 10 else 1, year=start.year + (1 if start.month > 9 else 0))
-        events = await self.graph.get_calendar_events(start, end)
-        for event_data in events:
-            await self._upsert_meeting(event_data)
-        yield SyncResult(items_processed=len(events))
+            # Sync calendar events (last 30 days, next 90 days)
+            start = datetime.utcnow().replace(day=1)
+            end = start.replace(month=start.month + 3 if start.month < 10 else 1, year=start.year + (1 if start.month > 9 else 0))
+            events = await client.get_calendar_events(start, end)
+            for event_data in events:
+                await self._upsert_meeting(event_data)
+            yield SyncResult(items_processed=len(events))
 
     async def get_item(self, item_id: str) -> Optional[dict]:
-        if not self.graph:
-            return None
         try:
-            return await self.graph.get(f"/me/messages/{item_id}")
+            async with self.graph_service.create_client(self.account) as client:
+                return await client.get(f"/me/messages/{item_id}")
         except Exception:
             return None
 
     async def search(self, query: str, limit: int = 50) -> list[dict]:
-        if not self.graph:
-            return []
         try:
-            params = {
-                "$search": f"\"{query}\"",
-                "$select": "id,subject,from,toRecipients,receivedDateTime,bodyPreview,importance,hasAttachments,conversationId,isRead",
-                "$top": limit,
-            }
-            result = await self.graph.get("/me/messages", params)
-            return result.get("value", [])
+            async with self.graph_service.create_client(self.account) as client:
+                params = {
+                    "$search": f"\"{query}\"",
+                    "$select": "id,subject,from,toRecipients,receivedDateTime,bodyPreview,importance,hasAttachments,conversationId,isRead",
+                    "$top": limit,
+                }
+                result = await client.get("/me/messages", params)
+                return result.get("value", [])
         except Exception:
             return []
 
-    async def _upsert_email(self, msg_data: dict) -> bool:
+    async def _upsert_email(self, msg_data: dict, client) -> bool:
         """Insert or update email. Returns True if new."""
         graph_id = msg_data["id"]
 
@@ -251,3 +245,8 @@ class OutlookConnector(Connector):
         else:
             for key, value in meeting_data.items():
                 setattr(meeting, key, value)
+
+    # Need to access db from the graph_service
+    @property
+    def db(self) -> AsyncSession:
+        return self.graph_service.db

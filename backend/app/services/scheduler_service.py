@@ -8,7 +8,9 @@ import logging
 from app.config import settings
 from app.database import async_session_maker
 from app.models.account import Account, AccountStatus
+from app.models.user import User
 from app.services.sync_service import SyncService
+from app.services.blocker_detection import BlockerDetector
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +56,14 @@ class SchedulerService:
             replace_existing=True,
         )
 
+        # Blocker detection - every 15 minutes
+        self.scheduler.add_job(
+            self._blocker_detection_job,
+            IntervalTrigger(minutes=15),
+            id="blocker_detection",
+            replace_existing=True,
+        )
+
         self.scheduler.start()
         self._started = True
         logger.info("Scheduler started")
@@ -92,3 +102,18 @@ class SchedulerService:
         """Check for deadline/meeting notifications."""
         # TODO: Implement when notification service is ready
         pass
+
+    async def _blocker_detection_job(self) -> None:
+        """Run blocker detection for all users."""
+        async with async_session_maker() as db:
+            result = await db.execute(select(User))
+            users = result.scalars().all()
+
+            for user in users:
+                try:
+                    detector = BlockerDetector(db, user.id)
+                    await detector.schedule_blocker_check()
+                    await db.commit()
+                except Exception as e:
+                    logger.error(f"Blocker detection failed for user {user.id}: {e}")
+                    await db.rollback()

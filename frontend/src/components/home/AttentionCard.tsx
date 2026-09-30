@@ -55,7 +55,7 @@ export function AttentionCard({ items }: AttentionCardProps) {
           {items.map((item, index) => (
             <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
               <div className={`p-1.5 rounded ${colors[item.type]}`}>
-                <icons[item.type] className="h-4 w-4" />
+                {(() => { const Icon = icons[item.type]; return <Icon className="h-4 w-4" />; })()}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-slate-900 dark:text-slate-100">{item.title}</p>

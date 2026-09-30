@@ -95,5 +95,25 @@ TOOL_DEFINITIONS = [
                 "required": ["to_email", "subject", "body"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "semantic_search",
+            "description": "Búsqueda semántica en la memoria del usuario (emails, tareas, compromisos, reuniones, proyectos, seguimientos)",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Consulta en lenguaje natural"},
+                    "limit": {"type": "integer", "default": 10},
+                    "source_types": {
+                        "type": "array",
+                        "items": {"type": "string", "enum": ["email", "task", "commitment", "followup", "meeting", "project", "document", "chat"]},
+                        "description": "Filtrar por tipo de fuente"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
     }
 ]

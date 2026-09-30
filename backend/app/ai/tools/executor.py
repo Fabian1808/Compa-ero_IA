@@ -8,12 +8,20 @@ from app.models.task import Task, TaskStatus
 from app.models.meeting import Meeting
 from app.models.email import Email
 from app.models.followup import FollowUp
+from app.memory.service import MemoryService
 
 
 class ToolExecutor:
     def __init__(self, db: AsyncSession, user_id: str):
         self.db = db
         self.user_id = user_id
+        self._memory_service: MemoryService | None = None
+
+    @property
+    def memory_service(self) -> MemoryService:
+        if self._memory_service is None:
+            self._memory_service = MemoryService(self.db, self.user_id)
+        return self._memory_service
 
     async def execute(self, tool_name: str, arguments: dict) -> Any:
         method = getattr(self, f"_{tool_name}", None)
@@ -187,4 +195,33 @@ class ToolExecutor:
                 "body": body,
             },
             "requires_confirmation": True
+        }
+
+    async def _semantic_search(
+        self,
+        query: str,
+        limit: int = 10,
+        source_types: list[str] | None = None
+    ) -> dict:
+        """Semantic search across all indexed memory."""
+        await self.memory_service.initialize()
+        results = await self.memory_service.search(
+            query=query,
+            limit=limit,
+            source_types=source_types,
+        )
+        
+        return {
+            "results": [
+                {
+                    "content": r["content"][:300],
+                    "source_type": r["source_type"],
+                    "source_id": r["source_id"],
+                    "score": r["score"],
+                    "metadata": r["metadata"],
+                    "search_type": r["search_type"],
+                }
+                for r in results
+            ],
+            "total": len(results),
         }

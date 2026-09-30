@@ -15,21 +15,25 @@
       "shell": {
         "all": false,
         "sidecar": true,
-        "open": true
+        "open": true,
+        "execute": true
       },
       "fs": {
         "all": false,
         "readFile": true,
         "writeFile": true,
         "createDir": true,
-        "readDir": true
+        "readDir": true,
+        "scope": ["$APPDATA/AI Workmate/**", "$TEMP/**"]
       },
       "path": {
         "all": true
       },
       "process": {
         "all": false,
-        "exit": true
+        "exit": true,
+        "relaunch": true,
+        "relaunchDangerousAllowSymlinkMacos": false
       },
       "notification": {
         "all": true
@@ -42,17 +46,135 @@
         "close": true,
         "setTitle": true,
         "setMinSize": true,
-        "setMaxSize": true
+        "setMaxSize": true,
+        "minimize": true,
+        "maximize": true,
+        "unminimize": true,
+        "unmaximize": true,
+        "setFullscreen": true,
+        "setResizable": true,
+        "setDecorations": true,
+        "setAlwaysOnTop": true,
+        "setIgnoreCursorEvents": true,
+        "setContentProtected": true,
+        "setSkipTaskbar": true,
+        "startDragging": true,
+        "print": true
+      },
+      "clipboardManager": {
+        "all": true
+      },
+      "dialog": {
+        "all": true,
+        "open": true,
+        "save": true,
+        "message": true,
+        "ask": true,
+        "confirm": true
+      },
+      "globalShortcut": {
+        "all": true
+      },
+      "notification": {
+        "all": true
+      },
+      "tray": {
+        "all": true
+      },
+      "updater": {
+        "all": false
+      },
+      "os": {
+        "all": true
+      },
+      "power": {
+        "all": true
+      },
+      "clipboard": {
+        "all": true
       }
     },
     "bundle": {
       "active": true,
       "targets": "all",
-      "icon": ["../frontend/public/icon.ico", "../frontend/public/icon.png"],
-      "resources": ["../backend/dist/ai-workmate-backend*"]
+      "icon": [
+        "../frontend/public/icon.ico",
+        "../frontend/public/icon.png",
+        "../frontend/public/icon.icns"
+      ],
+      "resources": [
+        "../backend/dist/ai-workmate-backend*"
+      ],
+      "externalBin": [
+        "../backend/dist/ai-workmate-backend.exe"
+      ],
+      "windows": {
+        "nsis": {
+          "installerIcon": "../frontend/public/icon.ico",
+          "licenseFile": "../LICENSE",
+          "displayLanguageSelector": true,
+          "multiLanguageInstaller": false,
+          "script": "./nsis/installer.nsi",
+          "include": [],
+          "artifacts": [],
+          "headerImage": "../frontend/public/icon.png",
+          "welcomeImage": "../frontend/public/icon.png"
+        },
+        "msi": {
+          "upgradeCode": "{12345678-1234-1234-1234-123456789012}",
+          "wix": {
+            "language": "es-ES",
+            "template": "../tauri/wix-template.xml"
+          }
+        },
+        "appimage": {
+          "bundleMediaFramework": false
+        },
+        "dmg": {
+          "windowSize": {
+            "width": 540,
+            "height": 380
+          },
+          "contents": [
+            {
+              "x": 170,
+              "y": 170,
+              "type": "file",
+              "path": "../frontend/public/icon.icns"
+            },
+            {
+              "x": 370,
+              "y": 170,
+              "type": "link",
+              "path": "/Applications"
+            }
+          ]
+        },
+        "deb": {
+          "depends": [
+            "libwebkit2gtk-4.1-0",
+            "libayatana-appindicator3-1",
+            "librsvg2-common"
+          ]
+        }
+      },
+      "macOS": {
+        "frameworks": [],
+        "minimumSystemVersion": "10.15",
+        "exceptionDomain": "",
+        "signingIdentity": null,
+        "providerShortName": null,
+        "entitlements": null
+      }
     },
     "security": {
-      "csp": "default-src 'self' ipc: http://localhost:8000; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;"
+      "csp": "default-src 'self' ipc: http://localhost:8000 ws://localhost:8000; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://localhost:8000 ws://localhost:8000; font-src 'self' data:; frame-src 'self';"
+    },
+    "updater": {
+      "active": false,
+      "endpoints": [],
+      "dialog": true,
+      "pubkey": ""
     },
     "windows": [
       {
@@ -66,8 +188,46 @@
         "resizable": true,
         "fullscreen": false,
         "decorations": true,
-        "transparent": false
+        "transparent": false,
+        "visibleOnAllWorkspaces": false,
+        "focus": true,
+        "hiddenTitle": false,
+        "titleBarStyle": "visible",
+        "hiddenTitleBar": false,
+        "dragDropEnabled": true
       }
-    ]
+    ],
+    "systemTray": {
+      "iconPath": "../frontend/public/icon.png",
+      "iconAsTemplate": true,
+      "menu": [
+        {
+          "id": "show",
+          "text": "Mostrar AI Workmate"
+        },
+        {
+          "id": "focus",
+          "text": "Modo Foco"
+        },
+        {
+          "id": "sync",
+          "text": "Sincronizar ahora"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "id": "settings",
+          "text": "Configuración"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "id": "quit",
+          "text": "Salir"
+        }
+      ]
+    }
   }
 }

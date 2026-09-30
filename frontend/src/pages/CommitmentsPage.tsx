@@ -254,7 +254,7 @@ export function CommitmentsPage() {
                       <option value="cancelled">Cancelado</option>
                     </select>
                   </div>
-                }
+                )} 
                 <div className="flex justify-end gap-2 pt-2">
                   <Button variant="secondary" type="button" onClick={() => { setShowCreateModal(false); setEditingCommitment(null); }}>Cancelar</Button>
                   <Button type="submit">{editingCommitment ? 'Guardar' : 'Crear'}</Button>

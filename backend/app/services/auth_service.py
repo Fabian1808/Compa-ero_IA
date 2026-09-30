@@ -24,7 +24,7 @@ class AuthService:
         if self._msal_app is None:
             self._msal_app = msal.PublicClientApplication(
                 client_id=settings.ms_graph_client_id,
-                client_credential=settings.ms_graph_client_secret,
+                
                 authority=settings.ms_graph_authority,
             )
         return self._msal_app

@@ -4,9 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 import structlog
 
+from app.multi_tenancy.middleware import TenantMiddleware
+
 from app.config import settings
 from app.database import init_db, close_db
-from app.api.v1 import auth, emails, tasks, projects, ai, notifications, followups, health, calendar, commitments, deadlines
+from app.api.v1 import auth, emails, tasks, projects, ai, notifications, followups, health, calendar, commitments, deadlines, search, blockers, workmap, connectors, admin, init
 from app.services.scheduler_service import SchedulerService
 
 # Configure structlog
@@ -58,6 +60,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(TenantMiddleware)
+
 # Include routers
 app.include_router(health.router, prefix=settings.api_prefix)
 app.include_router(auth.router, prefix=settings.api_prefix)
@@ -70,6 +74,12 @@ app.include_router(followups.router, prefix=settings.api_prefix)
 app.include_router(calendar.router, prefix=settings.api_prefix)
 app.include_router(commitments.router, prefix=settings.api_prefix)
 app.include_router(deadlines.router, prefix=settings.api_prefix)
+app.include_router(search.router, prefix=settings.api_prefix)
+app.include_router(blockers.router, prefix=settings.api_prefix)
+app.include_router(workmap.router, prefix=settings.api_prefix)
+app.include_router(connectors.router, prefix=settings.api_prefix)
+app.include_router(admin.router, prefix=settings.api_prefix)
+app.include_router(init.router, prefix=settings.api_prefix)
 
 
 @app.get("/")

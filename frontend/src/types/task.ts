@@ -1,3 +1,5 @@
+﻿// Re-exports from api.ts for backward compatibility
+export type { Task, TaskStatus } from './api';
 export interface TaskFilter {
   status?: string[];
   project_id?: string;

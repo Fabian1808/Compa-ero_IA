@@ -279,6 +279,183 @@ class ApiService {
     const response = await this.client.get('/health/ai');
     return response.data;
   }
+
+  // Search
+  async search(query: string, limit = 10, sourceTypes?: string[]) {
+    const response = await this.client.post('/search', { query, limit, source_types: sourceTypes });
+    return response.data;
+  }
+
+  async getMemoryStats() {
+    const response = await this.client.get('/search/stats');
+    return response.data;
+  }
+
+  async reindexMemory() {
+    const response = await this.client.post('/search/reindex', {});
+    return response.data;
+  }
+
+  async clearMemory() {
+    const response = await this.client.delete('/search/clear');
+    return response.data;
+  }
+
+  // WorkMap
+  async getWorkMap() {
+    const response = await this.client.get('/workmap');
+    return response.data;
+  }
+
+  async getWorkMapProjectProgress(projectId: string) {
+    const response = await this.client.get(`/workmap/project/${projectId}/progress`);
+    return response.data;
+  }
+
+  async getBottlenecks() {
+    const response = await this.client.get('/workmap/bottlenecks');
+    return response.data;
+  }
+
+  // Connectors
+  async getConnectors() {
+    const response = await this.client.get('/connectors');
+    return response.data;
+  }
+
+  async getConnectorInfo(connectorType: string) {
+    const response = await this.client.get(`/connectors/${connectorType}/info`);
+    return response.data;
+  }
+
+  async getAccounts() {
+    const response = await this.client.get('/connectors/accounts');
+    return response.data;
+  }
+
+  async testConnector(accountId: string, connectorType: string) {
+    const response = await this.client.post(`/connectors/accounts/${accountId}/test/${connectorType}`);
+    return response.data;
+  }
+
+  async syncConnector(accountId: string, connectorType: string) {
+    const response = await this.client.post(`/connectors/accounts/${accountId}/sync/${connectorType}`);
+    return response.data;
+  }
+
+  async getConnectorItems(accountId: string, connectorType: string, query = '', limit = 50) {
+    const response = await this.client.get(`/connectors/accounts/${accountId}/items/${connectorType}`, {
+      params: { query, limit }
+    });
+    return response.data;
+  }
+
+  async setExternalConnectorConfig(connectorType: string, config: Record<string, any>) {
+    const response = await this.client.post('/connectors/external/config', { connector_type: connectorType, config });
+    return response.data;
+  }
+
+  async getExternalConnectorConfig(connectorType: string) {
+    const response = await this.client.get(`/connectors/external/config/${connectorType}`);
+    return response.data;
+  }
+
+  // Admin
+  async getTenants(params?: { page?: number; per_page?: number; search?: string; status?: string }) {
+    const response = await this.client.get('/admin/tenants', { params });
+    return response.data;
+  }
+
+  async createTenant(data: { name: string; slug: string; domain?: string; subscription_tier?: string }) {
+    const response = await this.client.post('/admin/tenants', data);
+    return response.data;
+  }
+
+  async getTenant(tenantId: string) {
+    const response = await this.client.get(`/admin/tenants/${tenantId}`);
+    return response.data;
+  }
+
+  async updateTenant(tenantId: string, data: Partial<{ name: string; domain: string; is_active: boolean; subscription_tier: string; subscription_status: string }>) {
+    const response = await this.client.patch(`/admin/tenants/${tenantId}`, data);
+    return response.data;
+  }
+
+  async deleteTenant(tenantId: string) {
+    const response = await this.client.delete(`/admin/tenants/${tenantId}`);
+    return response.data;
+  }
+
+  async getTenantUsers(tenantId: string, params?: { page?: number; per_page?: number }) {
+    const response = await this.client.get(`/admin/tenants/${tenantId}/users`, { params });
+    return response.data;
+  }
+
+  async addTenantUser(tenantId: string, data: { email: string; role?: string }) {
+    const response = await this.client.post(`/admin/tenants/${tenantId}/users`, data);
+    return response.data;
+  }
+
+  async updateTenantUser(tenantId: string, userId: string, data: { role?: string; is_active?: boolean }) {
+    const response = await this.client.patch(`/admin/tenants/${tenantId}/users/${userId}`, data);
+    return response.data;
+  }
+
+  async removeTenantUser(tenantId: string, userId: string) {
+    const response = await this.client.delete(`/admin/tenants/${tenantId}/users/${userId}`);
+    return response.data;
+  }
+
+  async createInvitation(tenantId: string, data: { email: string; role?: string }) {
+    const response = await this.client.post(`/admin/tenants/${tenantId}/invitations`, data);
+    return response.data;
+  }
+
+  async getInvitations(tenantId: string) {
+    const response = await this.client.get(`/admin/tenants/${tenantId}/invitations`);
+    return response.data;
+  }
+
+  async getTenantSettings(tenantId: string) {
+    const response = await this.client.get(`/admin/tenants/${tenantId}/settings`);
+    return response.data;
+  }
+
+  async updateTenantSettings(tenantId: string, data: Record<string, any>) {
+    const response = await this.client.patch(`/admin/tenants/${tenantId}/settings`, data);
+    return response.data;
+  }
+
+  async getAuditLogs(params?: { tenant_id?: string; user_id?: string; action?: string; start_date?: string; end_date?: string; page?: number; per_page?: number }) {
+    const response = await this.client.get('/admin/audit-logs', { params });
+    return response.data;
+  }
+
+  async getSystemMetrics() {
+    const response = await this.client.get('/admin/metrics');
+    return response.data;
+  }
+
+  // Initialization
+  async getInitStatus() {
+    const response = await this.client.get('/init/status');
+    return response.data;
+  }
+
+  async startInitialization() {
+    const response = await this.client.post('/init/start', {});
+    return response.data;
+  }
+
+  async cancelInitialization() {
+    const response = await this.client.post('/init/cancel', {});
+    return response.data;
+  }
+
+  async resetInitialization() {
+    const response = await this.client.post('/init/reset', {});
+    return response.data;
+  }
 }
 
 export const api = new ApiService();

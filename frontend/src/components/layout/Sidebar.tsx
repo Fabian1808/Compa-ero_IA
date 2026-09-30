@@ -13,7 +13,15 @@ import {
   X,
   Bell,
   Moon,
-  Sun
+  Sun,
+  GitBranch,
+  AlertTriangle,
+  Puzzle,
+  LayoutDashboard,
+  Shield,
+  Building2,
+  Users,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
@@ -22,21 +30,35 @@ const navigation = [
   { name: 'Inicio', href: '/', icon: Home },
   { name: 'Pendientes', href: '/tasks', icon: CheckSquare },
   { name: 'Proyectos', href: '/projects', icon: FolderKanban },
+  { name: 'Mapa de Trabajo', href: '/workmap', icon: GitBranch },
   { name: 'Calendario', href: '/calendar', icon: Calendar },
   { name: 'Seguimientos', href: '/followups', icon: Clock },
   { name: 'Compromisos', href: '/commitments', icon: Flag },
   { name: 'Deadlines', href: '/deadlines', icon: Clock },
   { name: 'Memoria', href: '/memory', icon: Brain },
+  { name: 'Conectores', href: '/connectors', icon: Puzzle },
   { name: 'Aplicaciones', href: '/apps', icon: Settings },
   { name: 'Configuración', href: '/settings', icon: Settings },
+];
+
+const adminNavigation = [
+  { name: 'Panel Admin', href: '/admin', icon: LayoutDashboard },
+  { name: 'Tenants', href: '/admin/tenants', icon: Building2 },
+  { name: 'Usuarios', href: '/admin/users', icon: Users },
+  { name: 'Métricas', href: '/admin/metrics', icon: FileText },
+  { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileText },
+  { name: 'Configuración', href: '/admin/settings', icon: Settings },
+  { name: 'Seguridad', href: '/admin/security', icon: FileText },
 ];
 
 export function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const location = useLocation();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   if (!isAuthenticated) return null;
+
+  const isAdmin = user?.role === 'admin' || user?.role === 'owner';
 
   return (
     <>
@@ -83,6 +105,35 @@ export function Sidebar() {
                 {item.name}
               </NavLink>
             ))}
+
+            {isAdmin && (
+              <>
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <p className="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    Administración
+                  </p>
+                </div>
+                {adminNavigation.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                          : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+                      }`
+                    }
+                    onClick={() => {
+                      if (window.innerWidth < 1024) toggleSidebar();
+                    }}
+                  >
+                    <item.icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                    {item.name}
+                  </NavLink>
+                ))}
+              </>
+            )}
           </nav>
 
           {/* Footer */}

@@ -24,7 +24,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 def get_msal_app():
     return msal.PublicClientApplication(
         client_id=settings.ms_graph_client_id,
-        client_credential=settings.ms_graph_client_secret,
+        
         authority=settings.ms_graph_authority,
     )
 

@@ -7,8 +7,15 @@ from sqlalchemy import select
 from app.connectors.registry import ConnectorRegistry
 from app.models.account import Account, AccountStatus
 from app.models.email import Email
+from app.models.task import Task
+from app.models.commitment import Commitment
+from app.models.followup import FollowUp
+from app.models.meeting import Meeting
+from app.models.project import Project
 from app.services.ai_service import AIService
+from app.memory.service import MemoryService
 from app.events.bus import event_bus, EventType
+from app.ai.confidence import ConfidenceTier, evaluate_confidence
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -18,6 +25,12 @@ class SyncService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.registry = ConnectorRegistry(db)
+        self._memory_services: dict[str, MemoryService] = {}
+
+    def _get_memory_service(self, user_id: str) -> MemoryService:
+        if user_id not in self._memory_services:
+            self._memory_services[user_id] = MemoryService(self.db, user_id)
+        return self._memory_services[user_id]
 
     async def sync_account(self, account_id: str) -> AsyncIterator[dict]:
         """Sync a single account incrementally."""
@@ -94,21 +107,28 @@ class SyncService:
         result = await self.db.execute(stmt)
         emails = result.scalars().all()
 
+        memory_service = self._get_memory_service(account.user_id)
+        await memory_service.initialize()
+
         for email in emails:
             try:
+                # Index the email itself
+                await memory_service.index_email(email)
+
                 analysis = await ai_service.analyze_email(email.id)
-                await self._handle_analysis_results(email, analysis, ai_service)
+                await self._handle_analysis_results(email, analysis, ai_service, memory_service)
                 email.is_processed = True
                 await self.db.flush()
             except Exception as e:
                 logger.error(f"Failed to process email {email.id}: {e}")
 
-    async def _handle_analysis_results(self, email: Email, analysis: dict, ai_service: AIService) -> None:
+    async def _handle_analysis_results(self, email: Email, analysis: dict, ai_service: AIService, memory_service: MemoryService) -> None:
         """Handle AI analysis results and create suggestions."""
         from app.models.task import Task, TaskStatus, TaskPriority
         from app.models.commitment import Commitment, CommitmentStatus
         from app.models.followup import FollowUp, FollowUpStatus
         import uuid
+        import json
 
         # Handle detected tasks
         for task_data in analysis.get("tasks", []):
@@ -131,6 +151,10 @@ class SyncService:
                     metadata_json=json.dumps({"project_hint": task_data.get("project_hint")}),
                 )
                 self.db.add(task)
+                await self.db.flush()
+
+                # Index the new task
+                await memory_service.index_task(task)
 
                 await event_bus.emit(EventType.TASK_DETECTED, {
                     "task_id": task.id,
@@ -170,6 +194,10 @@ class SyncService:
                         confidence_score=confidence,
                     )
                     self.db.add(commitment)
+                    await self.db.flush()
+
+                    # Index the new commitment
+                    await memory_service.index_commitment(commitment)
 
                     await event_bus.emit(EventType.COMMITMENT_DETECTED, {
                         "commitment_id": commitment.id,
@@ -200,8 +228,3 @@ class SyncService:
         for account in accounts:
             async for sync_result in self.sync_account(account.id):
                 yield sync_result
-
-
-def evaluate_confidence(score: int, risk_level: str = "medium"):
-    from app.ai.confidence import evaluate_confidence as _eval
-    return _eval(score, risk_level)

@@ -1,4 +1,4 @@
-from sqlalchemy import String, DateTime, Text, Enum as SQLEnum, ForeignKey, Index, func, Integer
+﻿from sqlalchemy import String, DateTime, Text, Enum as SQLEnum, ForeignKey, Index, func, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from enum import Enum as PyEnum
@@ -22,6 +22,12 @@ class TaskPriority(str, PyEnum):
     CRITICAL = "critical"
 
 
+
+class DependencyType(str, PyEnum):
+    BLOCKS = "blocks"
+    BLOCKED_BY = "blocked_by"
+    RELATES_TO = "relates_to"
+    DUPLICATES = "duplicates"
 class Task(Base):
     __tablename__ = "tasks"
 

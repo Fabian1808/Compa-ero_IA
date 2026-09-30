@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/components/ui';
-import { Calendar, Clock, MapPin, Video, ChevronLeft, ChevronRight, Today, Plus } from 'lucide-react';
+import { Calendar, Clock, MapPin, Video, ChevronLeft, ChevronRight,  Plus } from 'lucide-react';
 import { format, parseISO, startOfWeek, endOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday, isSameMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -70,7 +70,7 @@ export function CalendarPage() {
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={prevWeek}><ChevronLeft className="h-4 w-4" /></Button>
           <Button variant="secondary" onClick={nextWeek}><ChevronRight className="h-4 w-4" /></Button>
-          <Button variant="secondary" onClick={goToToday}><Today className="h-4 w-4" /> Hoy</Button>
+          <Button variant="secondary" onClick={goToToday}><Calendar className="h-4 w-4" /> Hoy</Button>
           <Button><Plus className="h-4 w-4" /> Nuevo evento</Button>
         </div>
       </div>
