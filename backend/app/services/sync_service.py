@@ -1,4 +1,5 @@
 import logging
+import json
 from datetime import datetime
 from typing import AsyncIterator
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +13,7 @@ from app.models.commitment import Commitment
 from app.models.followup import FollowUp
 from app.models.meeting import Meeting
 from app.models.project import Project
+from app.models.teams import TeamsMessage
 from app.services.ai_service import AIService
 from app.memory.service import MemoryService
 from app.events.bus import event_bus, EventType
@@ -32,8 +34,11 @@ class SyncService:
             self._memory_services[user_id] = MemoryService(self.db, user_id)
         return self._memory_services[user_id]
 
-    async def sync_account(self, account_id: str) -> AsyncIterator[dict]:
-        """Sync a single account incrementally."""
+    async def sync_account(self, account_id: str, connector_types: list[str] = None) -> AsyncIterator[dict]:
+        """Sync a single account incrementally for specified connector types."""
+        if connector_types is None:
+            connector_types = ["outlook"]  # Default to Outlook only
+
         result = await self.db.execute(select(Account).where(Account.id == account_id))
         account = result.scalar_one_or_none()
 
@@ -45,30 +50,36 @@ class SyncService:
             yield {"error": "Account not active"}
             return
 
-        connector = self.registry.get_connector(account)
         ai_service = AIService(self.db, account.user_id)
-
         total_processed = 0
         total_created = 0
 
         try:
-            async for sync_result in connector.sync_incremental():
-                total_processed += sync_result.items_processed
-                total_created += sync_result.items_created
+            for connector_type in connector_types:
+                connector = self.registry.get_connector(account, connector_type)
+                
+                async for sync_result in connector.sync_incremental():
+                    total_processed += sync_result.items_processed
+                    total_created += sync_result.items_created
 
-                # Process new emails with AI
-                if sync_result.items_created > 0:
-                    await self._process_new_emails(account, ai_service)
+                    # Process new emails with AI (only for outlook)
+                    if connector_type == "outlook" and sync_result.items_created > 0:
+                        await self._process_new_emails(account, ai_service)
+                    
+                    # Process new Teams messages with AI
+                    if connector_type == "teams" and sync_result.items_created > 0:
+                        await self._process_new_teams_messages(account, ai_service)
 
-                yield {
-                    "account_id": account_id,
-                    "items_processed": sync_result.items_processed,
-                    "items_created": sync_result.items_created,
-                    "items_updated": sync_result.items_updated,
-                    "items_deleted": sync_result.items_deleted,
-                    "errors": sync_result.errors,
-                    "next_cursor": sync_result.next_cursor,
-                }
+                    yield {
+                        "account_id": account_id,
+                        "connector_type": connector_type,
+                        "items_processed": sync_result.items_processed,
+                        "items_created": sync_result.items_created,
+                        "items_updated": sync_result.items_updated,
+                        "items_deleted": sync_result.items_deleted,
+                        "errors": sync_result.errors,
+                        "next_cursor": sync_result.next_cursor,
+                    }
 
             # Update last sync time
             account.last_sync_at = datetime.utcnow()
@@ -98,7 +109,6 @@ class SyncService:
         from sqlalchemy import select
         from app.models.email import Email
 
-        # Get unprocessed emails
         stmt = select(Email).where(
             Email.account_id == account.id,
             Email.is_processed == False
@@ -121,6 +131,49 @@ class SyncService:
                 await self.db.flush()
             except Exception as e:
                 logger.error(f"Failed to process email {email.id}: {e}")
+
+    async def _process_new_teams_messages(self, account: Account, ai_service: AIService) -> None:
+        """Process newly synced Teams messages with AI."""
+        from sqlalchemy import select
+        from app.models.teams import TeamsMessage
+
+        stmt = select(TeamsMessage).where(
+            TeamsMessage.account_id == account.id,
+            TeamsMessage.is_processed == False
+        ).limit(settings.sync_batch_size)
+
+        result = await self.db.execute(stmt)
+        messages = result.scalars().all()
+
+        for message in messages:
+            try:
+                # Build message content for analysis
+                content = f"Teams message from {message.sender_name} in chat {message.chat_id}\n\n{message.body_text or message.body_html or ''}"
+                
+                # Use AI to analyze for tasks, commitments, etc.
+                tasks_result = await ai_service._extract_tasks(content)
+                commitments_result = await ai_service._extract_commitments(content)
+                deadlines_result = await ai_service._extract_deadlines(content)
+
+                await self._handle_analysis_results(
+                    type('obj', (object,), {
+                        'id': message.id,
+                        'account_id': account.id,
+                        'account': type('obj', (object,), {'user_id': account.user_id})(),
+                        'subject': f"Teams: {message.sender_name}",
+                        'body_text': content,
+                    })(),
+                    {
+                        "tasks": tasks_result.get("tasks", []),
+                        "commitments": commitments_result.get("commitments", []),
+                        "deadlines": deadlines_result.get("deadlines", []),
+                    },
+                    ai_service
+                )
+                message.is_processed = True
+                await self.db.flush()
+            except Exception as e:
+                logger.error(f"Failed to process Teams message {message.id}: {e}")
 
     async def _handle_analysis_results(self, email: Email, analysis: dict, ai_service: AIService, memory_service: MemoryService) -> None:
         """Handle AI analysis results and create suggestions."""
@@ -217,8 +270,11 @@ class SyncService:
                     "source_email_id": email.id,
                 }, user_id=email.account.user_id)
 
-    async def sync_all_accounts(self, user_id: str) -> AsyncIterator[dict]:
+    async def sync_all_accounts(self, user_id: str, connector_types: list[str] = None) -> AsyncIterator[dict]:
         """Sync all active accounts for a user."""
+        if connector_types is None:
+            connector_types = ["outlook"]
+
         result = await self.db.execute(select(Account).where(
             Account.user_id == user_id,
             Account.status == AccountStatus.ACTIVE
@@ -226,5 +282,5 @@ class SyncService:
         accounts = result.scalars().all()
 
         for account in accounts:
-            async for sync_result in self.sync_account(account.id):
+            async for sync_result in self.sync_account(account.id, connector_types):
                 yield sync_result

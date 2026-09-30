@@ -12,6 +12,16 @@ from app.models.ai_memory import AIMemory, Embedding
 from app.models.event_log import EventLog
 from app.models.audit_log import AuditLog
 from app.models.setting import Setting
+from app.models.teams import TeamsChat, TeamsMessage, TeamsChannel
+from app.models.onedrive import OneDriveFile, OneDriveDeltaLink
+from app.models.sharepoint import (
+    SharePointSite,
+    SharePointDrive,
+    SharePointList,
+    SharePointListItem,
+    SharePointItem,
+    SharePointDeltaLink,
+)
 
 __all__ = [
     "User",
@@ -31,4 +41,15 @@ __all__ = [
     "EventLog",
     "AuditLog",
     "Setting",
+    "TeamsChat",
+    "TeamsMessage",
+    "TeamsChannel",
+    "OneDriveFile",
+    "OneDriveDeltaLink",
+    "SharePointSite",
+    "SharePointDrive",
+    "SharePointList",
+    "SharePointListItem",
+    "SharePointItem",
+    "SharePointDeltaLink",
 ]

@@ -21,6 +21,7 @@ from app.models.commitment import Commitment, CommitmentStatus
 from app.models.followup import FollowUp, FollowUpStatus
 from app.models.meeting import Meeting
 from app.models.project import Project
+from app.memory.service import MemoryService
 
 
 class AIService:
@@ -29,6 +30,7 @@ class AIService:
         self.user_id = user_id
         self._provider: Optional[AIProvider] = None
         self._tool_executor: Optional[ToolExecutor] = None
+        self._memory_service = None
 
     @property
     def provider(self) -> AIProvider:
@@ -47,6 +49,13 @@ class AIService:
         if self._tool_executor is None:
             self._tool_executor = ToolExecutor(self.db, self.user_id)
         return self._tool_executor
+
+    @property
+    def memory_service(self) -> MemoryService:
+        if self._memory_service is None:
+            from app.memory.service import MemoryService
+            self._memory_service = MemoryService(self.db, self.user_id)
+        return self._memory_service
 
     async def analyze_email(self, email_id: str) -> dict:
         """Analyze a single email for tasks, commitments, deadlines, followups."""
@@ -226,15 +235,23 @@ class AIService:
             }
 
     async def chat_with_tools(self, question: str, context: dict | None = None) -> dict:
-        """Chat with AI using tool calling."""
+        """Chat with AI using tool calling and RAG."""
+        # Get relevant context from semantic memory
+        search_results = await self.memory_service.search(question, limit=8)
+        rag_context = "\n\n".join([
+            f"[{r['source_type'].upper()}] {r['content'][:500]}"
+            for r in search_results
+        ]) if search_results else "No se encontró información relevante."
+        
         messages = [
-            ChatMessage(role="system", content="Eres AI Workmate, un asistente de productividad. Usa las herramientas disponibles para responder."),
+            ChatMessage(role="system", content="Eres AI Workmate, un asistente de productividad. Usa las herramientas disponibles y el contexto proporcionado para responder."),
+            ChatMessage(role="system", content=f"Contexto relevante de tu trabajo:\n{rag_context}"),
             ChatMessage(role="user", content=question),
         ]
 
         # Add context if provided
         if context:
-            messages.insert(1, ChatMessage(role="system", content=f"Contexto actual: {json.dumps(context, default=str)}"))
+            messages.insert(2, ChatMessage(role="system", content=f"Contexto adicional: {json.dumps(context, default=str)}"))
 
         response = await self.provider.chat_completion(
             messages,
