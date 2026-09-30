@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Input } from '@/components/ui';
-import { Flag, Clock, CheckCircle, XCircle, Plus, Edit, Trash2, Loader2 } from 'lucide-react';
+import { Flag, Clock, CheckCircle, XCircle, Plus, Edit, Trash2, Loader2, X } from 'lucide-react';
 import { formatRelativeTime, formatDate } from '@/utils/formatters';
+import { useI18n } from '@/i18n/I18nProvider';
+import { enumLabel } from '@/i18n/enumLabel';
 
 interface Commitment {
   id: string;
@@ -17,6 +19,7 @@ interface Commitment {
 }
 
 export function CommitmentsPage() {
+  const { t } = useI18n();
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -82,7 +85,7 @@ export function CommitmentsPage() {
   };
 
   const deleteCommitment = async (id: string) => {
-    if (!confirm('¿Eliminar este compromiso?')) return;
+    if (!confirm(t('pages.commitments.deleteConfirm'))) return;
     try {
       await api.delete(`/commitments/${id}`);
       fetchCommitments();
@@ -102,16 +105,7 @@ export function CommitmentsPage() {
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      'pending': 'Pendiente',
-      'confirmed': 'Confirmado',
-      'completed': 'Completado',
-      'cancelled': 'Cancelado',
-      'expired': 'Expirado',
-    };
-    return labels[status] || status;
-  };
+  const getStatusLabel = (status: string) => enumLabel(t, 'pages.commitments.statuses', status);
 
   const isOverdue = (dueDate: string | null) => {
     if (!dueDate) return false;
@@ -122,12 +116,12 @@ export function CommitmentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Compromisos</h1>
-          <p className="text-slate-500 dark:text-slate-400">Tus promesas y compromisos adquiridos</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('pages.commitments.title')}</h1>
+          <p className="text-slate-500 dark:text-slate-400">{t('pages.commitments.subtitle')}</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4" />
-          Nuevo compromiso
+          {t('pages.commitments.new')}
         </Button>
       </div>
 
@@ -135,11 +129,11 @@ export function CommitmentsPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <Flag className="h-16 w-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">No hay compromisos</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-4">Registra tus promesas para no olvidarlas</p>
+            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">{t('pages.commitments.empty')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">{t('pages.commitments.emptyHint')}</p>
             <Button onClick={() => setShowCreateModal(true)}>
               <Plus className="h-4 w-4" />
-              Crear primer compromiso
+              {t('pages.commitments.createFirst')}
             </Button>
           </CardContent>
         </Card>
@@ -150,11 +144,11 @@ export function CommitmentsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Compromiso</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha límite</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confianza</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.commitments.fields.title')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.commitments.fields.dueDate')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.commitments.fields.status')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.commitments.fields.confidence')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.commitments.fields.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -163,17 +157,17 @@ export function CommitmentsPage() {
                       <td className="px-4 py-3">
                         <div className="font-medium text-slate-900 dark:text-slate-100">{c.description}</div>
                         <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          Creado {formatRelativeTime(c.committed_at)}
+                          {t('pages.commitments.created', { time: formatRelativeTime(c.committed_at) })}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         {c.due_date ? (
                           <div className={`font-medium ${isOverdue(c.due_date) ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}`}>
                             {formatDate(c.due_date)}
-                            {isOverdue(c.due_date) && <span className="ml-2 text-red-600 dark:text-red-400">(Vencido)</span>}
+                            {isOverdue(c.due_date) && <span className="ml-2 text-red-600 dark:text-red-400">({t('pages.commitments.overdue')})</span>}
                           </div>
                         ) : (
-                          <span className="text-slate-400 dark:text-slate-500">Sin fecha</span>
+                          <span className="text-slate-400 dark:text-slate-500">{t('pages.commitments.noDate')}</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -210,14 +204,14 @@ export function CommitmentsPage() {
           <Card className="w-full max-w-md">
             <CardContent className="py-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">{editingCommitment ? 'Editar compromiso' : 'Nuevo compromiso'}</h2>
+                <h2 className="text-lg font-semibold">{editingCommitment ? t('pages.commitments.edit') : t('pages.commitments.new')}</h2>
                 <Button variant="ghost" size="sm" onClick={() => { setShowCreateModal(false); setEditingCommitment(null); }}>
                   <X className="h-5 w-5" />
                 </Button>
               </div>
               <form onSubmit={editingCommitment ? handleUpdate : handleCreate} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Compromiso</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.commitments.fields.title')}</label>
                   <textarea
                     value={editingCommitment?.description || newCommitment.description}
                     onChange={(e) => editingCommitment 
@@ -225,12 +219,12 @@ export function CommitmentsPage() {
                       : setNewCommitment({ ...newCommitment, description: e.target.value })}
                     rows={3}
                     className="input resize-none"
-                    placeholder="¿Qué te comprometiste a hacer?"
+                    placeholder={t('pages.commitments.placeholder')}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Fecha límite</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.commitments.fields.dueDate')}</label>
                   <Input
                     type="date"
                     value={editingCommitment?.due_date || newCommitment.due_date}
@@ -242,22 +236,22 @@ export function CommitmentsPage() {
                 </div>
                 {editingCommitment && (
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estado</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.commitments.fields.status')}</label>
                     <select
                       value={editingCommitment.status}
                       onChange={(e) => setEditingCommitment({ ...editingCommitment, status: e.target.value as any })}
                       className="input"
                     >
-                      <option value="pending">Pendiente</option>
-                      <option value="confirmed">Confirmado</option>
-                      <option value="completed">Completado</option>
-                      <option value="cancelled">Cancelado</option>
+                      <option value="pending">{t('pages.commitments.statuses.pending')}</option>
+                      <option value="confirmed">{t('pages.commitments.statuses.confirmed')}</option>
+                      <option value="completed">{t('pages.commitments.statuses.completed')}</option>
+                      <option value="cancelled">{t('pages.commitments.statuses.cancelled')}</option>
                     </select>
                   </div>
                 )} 
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="secondary" type="button" onClick={() => { setShowCreateModal(false); setEditingCommitment(null); }}>Cancelar</Button>
-                  <Button type="submit">{editingCommitment ? 'Guardar' : 'Crear'}</Button>
+                  <Button variant="secondary" type="button" onClick={() => { setShowCreateModal(false); setEditingCommitment(null); }}>{t('common.cancel')}</Button>
+                  <Button type="submit">{editingCommitment ? t('common.save') : t('common.create')}</Button>
                 </div>
               </form>
             </CardContent>

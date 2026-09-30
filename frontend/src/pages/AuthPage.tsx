@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, Button, Input } from '@/components/ui';
+import { useI18n } from '@/i18n/I18nProvider';
 import { Mail, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 export function AuthPage() {
+  const { t } = useI18n();
   const { login, completeLogin, isAuthenticated, isLoading } = useAuth();
   const [step, setStep] = useState<'start' | 'device_code' | 'waiting' | 'success' | 'error'>('start');
   const [deviceCode, setDeviceCode] = useState('');
@@ -81,7 +83,7 @@ export function AuthPage() {
               <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">¡Bienvenido!</h1>
-            <p className="text-slate-500 dark:text-slate-400">Has iniciado sesión correctamente. Redirigiendo...</p>
+            <p className="text-slate-500 dark:text-slate-400">{t('pages.auth.success')}</p>
           </CardContent>
         </Card>
       </div>
@@ -93,8 +95,8 @@ export function AuthPage() {
       <Card className="w-full max-w-md">
         <CardContent className="py-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">AI Workmate</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Conecta tu cuenta de Microsoft para comenzar</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('pages.auth.title')}</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">{t('pages.auth.subtitle')}</p>
           </div>
 
           {error && (
@@ -107,7 +109,7 @@ export function AuthPage() {
           {step === 'start' && (
             <Button className="w-full" size="lg" onClick={handleStartLogin} loading={isLoading}>
               <Mail className="h-5 w-5" />
-              Conectar Microsoft Outlook
+              {t('pages.auth.connect')}
             </Button>
           )}
 
@@ -125,12 +127,12 @@ export function AuthPage() {
                     {userCode.match(/.{1,4}/g)?.join(' ') || userCode}
                   </code>
                   <Button variant="secondary" onClick={copyUserCode} size="sm">
-                    Copiar
+                    {t('pages.auth.copy')}
                   </Button>
                 </div>
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
-                Tiempo restante: <span className="font-mono font-bold">{Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}</span>
+                {t('pages.auth.expiresIn')}: <span className="font-mono font-bold">{Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}</span>
               </p>
               <Button variant="secondary" className="w-full" onClick={() => { setPolling(false); setStep('start'); }}>
                 Cancelar
@@ -140,8 +142,8 @@ export function AuthPage() {
 
           {step === 'error' && (
             <div className="text-center">
-              <p className="text-slate-500 dark:text-slate-400 mb-4">No se pudo completar la autenticación.</p>
-              <Button onClick={() => setStep('start')}>Intentar de nuevo</Button>
+              <p className="text-slate-500 dark:text-slate-400 mb-4">{t('pages.auth.failure')}</p>
+              <Button onClick={() => setStep('start')}>{t('pages.auth.retry')}</Button>
             </div>
           )}
         </CardContent>

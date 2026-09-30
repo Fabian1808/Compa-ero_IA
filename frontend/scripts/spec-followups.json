@@ -1,0 +1,78 @@
+[
+  {
+    "find": "import { formatRelativeTime, formatDate } from '@/utils/formatters';",
+    "replace": "import { formatRelativeTime, formatDate } from '@/utils/formatters';\nimport { useI18n } from '@/i18n/I18nProvider';"
+  },
+  {
+    "find": "export function FollowupsPage() {",
+    "replace": "export function FollowupsPage() {\n  const { t } = useI18n();"
+  },
+  {
+    "find": ">Seguimientos</h1>",
+    "replace": ">{t('pages.followups.title')}</h1>"
+  },
+  {
+    "find": ">Correos que necesitan respuesta</p>",
+    "replace": ">{t('pages.followups.subtitle')}</p>"
+  },
+  {
+    "find": "                  Detectar seguimientos",
+    "replace": "                  {t('pages.followups.stopTracking')}"
+  },
+  {
+    "find": ">No hay seguimientos pendientes</h3>",
+    "replace": ">{t('pages.followups.nonePending')}</h3>"
+  },
+  {
+    "find": ">Todos tus correos han sido respondidos</p>",
+    "replace": ">{t('pages.followups.allAnswered')}</p>"
+  },
+  {
+    "find": "                    Buscar seguimientos automáticamente",
+    "replace": "                    {t('pages.followups.detect')}"
+  },
+  {
+    "find": ">Asunto</th>",
+    "replace": ">{t('pages.followups.subject')}</th>"
+  },
+  {
+    "find": ">Contacto</th>",
+    "replace": ">{t('pages.followups.contact')}</th>"
+  },
+  {
+    "find": ">Estado</th>",
+    "replace": ">{t('pages.followups.status')}</th>"
+  },
+  {
+    "find": ">Acciones</th>",
+    "replace": ">{t('pages.followups.actions')}</th>"
+  },
+  {
+    "find": ">Enviado</Badge>",
+    "replace": ">{t('pages.followups.sent')}</Badge>"
+  },
+  {
+    "find": ">Preparar</Button>",
+    "replace": ">{t('pages.followups.prepare')}</Button>"
+  },
+  {
+    "find": ">Enviar</Button>",
+    "replace": ">{t('pages.followups.send')}</Button>"
+  },
+  {
+    "find": ">Borrador de seguimiento</h3>",
+    "replace": ">{t('pages.followups.draft')}</h3>"
+  },
+  {
+    "find": "placeholder=\"Edita el borrador antes de enviar...\"",
+    "replace": "placeholder={t('pages.followups.draftPlaceholder')}"
+  },
+  {
+    "find": ">Cancelar</Button>",
+    "replace": ">{t('common.cancel')}</Button>"
+  },
+  {
+    "find": ">Guardar y enviar</Button>",
+    "replace": ">{t('pages.followups.saveAndSend')}</Button>"
+  }
+]

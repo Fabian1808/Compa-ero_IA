@@ -1,0 +1,25 @@
+﻿[
+  {
+    "find": "<DeadlinesList deadlines={upcomingDeadlines} loading={loading} />",
+    "replace": "<DeadlinesList deadlines={upcomingDeadlines} loading={loading} t={t} />",
+    "all": true
+  },
+  {
+    "find": "<DeadlinesList deadlines={filtered} loading={loading} />",
+    "replace": "<DeadlinesList deadlines={filtered} loading={loading} t={t} />",
+    "all": true
+  },
+  {
+    "find": "function DeadlinesList({ deadlines, loading }: { deadlines: Deadline[]; loading: boolean }) {",
+    "replace": "function DeadlinesList({ deadlines, loading, t }: { deadlines: Deadline[]; loading: boolean; t: TFunction }) {"
+  },
+  {
+    "find": "<DeadlineItem key={deadline.id} deadline={deadline} />",
+    "replace": "<DeadlineItem key={deadline.id} deadline={deadline} t={t} />",
+    "all": true
+  },
+  {
+    "find": "function DeadlineItem({ deadline }: { deadline: Deadline }) {",
+    "replace": "function DeadlineItem({ deadline, t }: { deadline: Deadline; t: TFunction }) {"
+  }
+]

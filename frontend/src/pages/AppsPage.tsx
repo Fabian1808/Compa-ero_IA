@@ -83,7 +83,7 @@ export function AppsPage() {
                       Desconectar
                     </Button>
                   ) : (
-                    <Button variant="primary" size="sm" loading={app.status === 'connecting'}>
+                    <Button variant="primary" size="sm">
                       <Plus className="h-4 w-4" />
                       Conectar
                     </Button>

@@ -19,13 +19,8 @@ import type { PluralCategory } from './plural';
 
 const STORAGE_KEY = 'aiworkmate.locale';
 
-export interface I18nContextValue {
-  locale: SupportedLocale;
-  availableLocales: readonly SupportedLocale[];
-  setLocale: (locale: SupportedLocale) => void;
-  /** Translates a dotted catalog key. */
-  t: (key: string, options?: Record<string, string | number> & { count?: number; category?: PluralCategory }) => string;
-}
+export type { TFunction } from './types';
+import type { I18nContextValue } from './types';
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 

@@ -164,3 +164,15 @@ export interface Notification {
   is_read: boolean;
   created_at: string;
 }
+
+/** Mirrors the backend `NotificationSettings` schema. */
+export interface NotificationSettings {
+  enabled: boolean;
+  focus_mode_silence_non_critical: boolean;
+  daily_briefing_enabled: boolean;
+  daily_briefing_hour: number;
+  end_of_day_enabled: boolean;
+  end_of_day_hour: number;
+  deadline_reminder_minutes_before: number;
+  meeting_reminder_minutes_before: number;
+}

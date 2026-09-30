@@ -1,0 +1,159 @@
+[
+  {
+    "find": "import { TabsContent } from '@/components/ui';",
+    "replace": "import { TabsContent } from '@/components/ui';\nimport { useI18n, type TFunction } from '@/i18n/I18nProvider';"
+  },
+  {
+    "find": "  const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());",
+    "replace": "  const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());\n  const { t } = useI18n();\n\n  /** Translates an enum value, falling back to the raw value when unmapped. */\n  const label = (key: string, raw: string) => {\n    const translated = t(key);\n    return translated === key ? raw : translated;\n  };"
+  },
+  {
+    "find": ">Cargando mapa de trabajo...</p>",
+    "replace": ">{t('pages.workmap.loading')}</p>"
+  },
+  {
+    "find": ">No se pudo cargar el mapa de trabajo</p>",
+    "replace": ">{t('pages.workmap.loadFailed')}</p>"
+  },
+  {
+    "find": ">Mapa de Trabajo</h1>",
+    "replace": ">{t('pages.workmap.title')}</h1>"
+  },
+  {
+    "find": ">Visualización de proyectos, tareas, compromisos y cuellos de botella</p>",
+    "replace": ">{t('pages.workmap.subtitle')}</p>"
+  },
+  {
+    "find": "            Actualizar\n          </Button>",
+    "replace": "            {t('pages.workmap.refresh')}\n          </Button>"
+  },
+  {
+    "find": "label=\"Proyectos\" value={stats.total_projects} sublabel={`${stats.active_projects} activos`}",
+    "replace": "label={t('pages.workmap.cards.projects')} value={stats.total_projects} sublabel={t('pages.workmap.sublabels.active', { count: stats.active_projects })}"
+  },
+  {
+    "find": "label=\"Tareas\" value={stats.total_tasks} sublabel={`${stats.pending_tasks} pendientes`}",
+    "replace": "label={t('pages.workmap.cards.tasks')} value={stats.total_tasks} sublabel={t('pages.workmap.sublabels.pending', { count: stats.pending_tasks })}"
+  },
+  {
+    "find": "label=\"Bloqueadas\" value={stats.blocked_tasks} sublabel={`${stats.overdue_tasks} vencidas`}",
+    "replace": "label={t('pages.workmap.cards.blocked')} value={stats.blocked_tasks} sublabel={t('pages.workmap.sublabels.overdue', { count: stats.overdue_tasks })}"
+  },
+  {
+    "find": "label=\"Compromisos\" value={stats.pending_commitments} sublabel=\"pendientes\"",
+    "replace": "label={t('pages.workmap.cards.commitments')} value={stats.pending_commitments} sublabel={t('pages.workmap.sublabels.pendingPlain')}"
+  },
+  {
+    "find": "label=\"Reuniones\" value={stats.upcoming_meetings} sublabel=\"próximos 7 días\"",
+    "replace": "label={t('pages.workmap.cards.meetings')} value={stats.upcoming_meetings} sublabel={t('pages.workmap.sublabels.next7d')}"
+  },
+  {
+    "find": "label=\"Cuellos botella\" value={stats.bottlenecks_count} sublabel=\"detectados\"",
+    "replace": "label={t('pages.workmap.cards.bottlenecks')} value={stats.bottlenecks_count} sublabel={t('pages.workmap.sublabels.detected')}"
+  },
+  {
+    "find": ">Resumen</TabsTrigger>",
+    "replace": ">{t('pages.workmap.tabs.overview')}</TabsTrigger>"
+  },
+  {
+    "find": ">Proyectos</TabsTrigger>",
+    "replace": ">{t('pages.workmap.tabs.projects')}</TabsTrigger>"
+  },
+  {
+    "find": ">Cuellos de Botella</TabsTrigger>",
+    "replace": ">{t('pages.workmap.tabs.bottlenecks')}</TabsTrigger>"
+  },
+  {
+    "find": ">Próximos 7 días</TabsTrigger>",
+    "replace": ">{t('pages.workmap.tabs.timeline')}</TabsTrigger>"
+  },
+  {
+    "find": ">Próximos elementos críticos</h3>",
+    "replace": ">{t('pages.workmap.nextCritical')}</h3>"
+  },
+  {
+    "find": ">Próximos vencimientos</h3>",
+    "replace": ">{t('pages.workmap.nextDeadlines')}</h3>"
+  },
+  {
+    "find": ">Reuniones próximas</h3>",
+    "replace": ">{t('pages.workmap.upcomingMeetings')}</h3>"
+  },
+  {
+    "find": ">Progreso de proyectos</h3>",
+    "replace": ">{t('pages.workmap.projectProgress')}</h3>"
+  },
+  {
+    "find": ">No hay proyectos aún</p>",
+    "replace": ">{t('pages.workmap.noProjects')}</p>"
+  },
+  {
+    "find": ">Sin tareas en este proyecto</p>",
+    "replace": ">{t('pages.workmap.noTasks')}</p>"
+  },
+  {
+    "find": ">¡Sin cuellos de botella!</h3>",
+    "replace": ">{t('pages.workmap.noBottlenecks')}</h3>"
+  },
+  {
+    "find": ">Tu trabajo fluye sin obstáculos detectados</p>",
+    "replace": ">{t('pages.workmap.clear')}</p>"
+  },
+  {
+    "find": "Tarea bloqueante:",
+    "replace": "{t('pages.workmap.blockingTask')}:"
+  },
+  {
+    "find": "                    .map(t => (\n                      <TaskRow key={t.id} task={t} />\n                    )),",
+    "replace": "                    .map(taskNode => (\n                      <TaskRow key={taskNode.id} task={taskNode} t={t} />\n                    )),"
+  },
+  {
+    "find": "                    .map(c => (\n                      <CommitmentRow key={c.id} commitment={c} />\n                    )),",
+    "replace": "                    .map(commitmentNode => (\n                      <CommitmentRow key={commitmentNode.id} commitment={commitmentNode} t={t} />\n                    )),"
+  },
+  {
+    "find": "<TaskRow key={t.id} task={t} />",
+    "replace": "<TaskRow key={taskNode.id} task={taskNode} t={t} />",
+    "all": true
+  },
+  {
+    "find": "<CommitmentRow key={c.id} commitment={c} />",
+    "replace": "<CommitmentRow key={c.id} commitment={c} t={t} />",
+    "all": true
+  },
+  {
+    "find": "<MeetingRow key={m.id} meeting={m} />",
+    "replace": "<MeetingRow key={m.id} meeting={m} t={t} />",
+    "all": true
+  },
+  {
+    "find": "<DeadlineRow key={item.id} item={item} type=\"task\" />",
+    "replace": "<DeadlineRow key={item.id} item={item} type=\"task\" t={t} />",
+    "all": true
+  },
+  {
+    "find": "<ProjectProgressRow key={project.id} project={project} />",
+    "replace": "<ProjectProgressRow key={project.id} project={project} t={t} />",
+    "all": true
+  },
+  {
+    "find": "function TaskRow({ task, compact }: { task: WorkMapNode; compact?: boolean }) {\n  const t = task.data;",
+    "replace": "function TaskRow({ task, compact, t }: { task: WorkMapNode; compact?: boolean; t: TFunction }) {\n  const d = task.data;\n  const label = (key: string, raw: string) => {\n    const translated = t(key);\n    return translated === key ? raw : translated;\n  };"
+  },
+  {
+    "find": "function CommitmentRow({ commitment }: { commitment: WorkMapNode }) {",
+    "replace": "function CommitmentRow({ commitment, t }: { commitment: WorkMapNode; t: TFunction }) {\n  const label = (key: string, raw: string) => {\n    const translated = t(key);\n    return translated === key ? raw : translated;\n  };"
+  },
+  {
+    "find": "function MeetingRow({ meeting }: { meeting: WorkMapNode }) {",
+    "replace": "function MeetingRow({ meeting, t }: { meeting: WorkMapNode; t: TFunction }) {"
+  },
+  {
+    "find": "function DeadlineRow({ item, type }: { item: WorkMapNode; type: 'task' | 'commitment' }) {",
+    "replace": "function DeadlineRow({ item, type, t }: { item: WorkMapNode; type: 'task' | 'commitment'; t: TFunction }) {"
+  },
+  {
+    "find": "function ProjectProgressRow({ project }: { project: WorkMapNode }) {",
+    "replace": "function ProjectProgressRow({ project, t }: { project: WorkMapNode; t: TFunction }) {\n  const label = (key: string, raw: string) => {\n    const translated = t(key);\n    return translated === key ? raw : translated;\n  };"
+  }
+]

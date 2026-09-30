@@ -23,13 +23,6 @@ interface InitStatus {
   error: string | null;
 }
 
-interface StepProgress {
-  status: string;
-  progress: number;
-  message: string;
-  error?: string;
-}
-
 const STEPS_CONFIG = [
   { key: 'check_ollama', label: 'Verificar Ollama', icon: Brain, description: 'Motor de IA local' },
   { key: 'install_ollama', label: 'Instalar Ollama', icon: Download, description: 'Si no está presente' },
@@ -72,8 +65,8 @@ export function InitializationPage() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const data = await api.get('/init/status');
-      setStatus(data);
+      const response = await api.get('/init/status');
+      setStatus(response.data);
     } catch (err) {
       console.error('Error fetching init status:', err);
     }

@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { Task } from '@/types/task';
 import { Card, CardContent, Button } from '@/components/ui';
+import { useI18n } from '@/i18n/I18nProvider';
 import { PauseCircle, CheckCircle, XCircle, Clock, RotateCcw, Flag, AlertTriangle } from 'lucide-react';
 import { formatDuration, formatRelativeTime } from '@/utils/formatters';
 
 export function FocusPage() {
+  const { t } = useI18n();
   const { currentTask, endFocus, completeTask, updateTask, tasks } = useTasks();
   const [elapsed, setElapsed] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -62,10 +64,10 @@ export function FocusPage() {
             <div className="p-3 rounded-full bg-slate-100 dark:bg-slate-700 inline-flex mb-4">
               <Flag className="h-10 w-10 text-slate-400" />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">No hay tarea en foco</h2>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">Ve a Inicio o Pendientes y selecciona una tarea para empezar</p>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">{t('pages.focus.empty')}</h2>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">{t('pages.focus.emptyHint')}</p>
             <Button variant="secondary" onClick={() => window.history.back()}>
-              Volver
+              {t('pages.focus.back')}
             </Button>
           </CardContent>
         </Card>
@@ -82,7 +84,7 @@ export function FocusPage() {
         <Button variant="ghost" onClick={handleStop}>
           <RotateCcw className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Modo Enfoque</h1>
+        <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t('pages.focus.title')}</h1>
         <div className="w-10" />
       </div>
 
@@ -104,7 +106,7 @@ export function FocusPage() {
             <div className="text-sm text-slate-600 dark:text-slate-400">
               Estimado: {formatDuration(currentTask.estimated_minutes)} • 
               {elapsed > currentTask.estimated_minutes * 60 
-                ? <span className="text-red-600 dark:text-red-400">Excedido</span>
+                ? <span className="text-red-600 dark:text-red-400">{t('pages.focus.overtime')}</span>
                 : <span>Faltan {formatDuration(Math.max(0, currentTask.estimated_minutes * 60 - elapsed))}</span>
               }
             </div>
@@ -152,18 +154,18 @@ export function FocusPage() {
           {isPaused ? (
             <>
               <RotateCcw className="h-5 w-5" />
-              Continuar
+              {t('pages.focus.resume')}
             </>
           ) : (
             <>
               <PauseCircle className="h-5 w-5" />
-              Pausar
+              {t('pages.focus.pause')}
             </>
           )}
         </Button>
         <Button variant="destructive" size="lg" onClick={handleStop}>
           <XCircle className="h-5 w-5" />
-          Detener
+          {t('pages.focus.stop')}
         </Button>
       </div>
 
@@ -174,13 +176,13 @@ export function FocusPage() {
         onClick={() => setShowCompleteModal(true)}
       >
         <CheckCircle className="h-5 w-5" />
-        Marcar como completada
+        {t('pages.focus.markCompleted')}
       </Button>
 
       {/* Quick Notes */}
       <Card>
         <CardContent className="py-4">
-          <h4 className="font-medium text-slate-900 dark:text-slate-100 mb-3">Notas rápidas</h4>
+          <h4 className="font-medium text-slate-900 dark:text-slate-100 mb-3">{t('pages.focus.notes')}</h4>
           <textarea
             className="input resize-none min-h-[100px]"
             placeholder="Anota avances, bloqueos, ideas... (se guardan al completar)"

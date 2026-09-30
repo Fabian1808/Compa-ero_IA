@@ -1,0 +1,52 @@
+[
+  {
+    "find": "export function FocusPage() {",
+    "replace": "export function FocusPage() {\n  const { t } = useI18n();"
+  },
+  {
+    "find": "import { Card, CardContent, Button, Badge } from '@/components/ui';",
+    "replace": "import { Card, CardContent, Button, Badge } from '@/components/ui';\nimport { useI18n } from '@/i18n/I18nProvider';"
+  },
+  {
+    "find": ">Modo Enfoque</h1>",
+    "replace": ">{t('pages.focus.title')}</h1>"
+  },
+  {
+    "find": "No hay tarea en foco",
+    "replace": "{t('pages.focus.empty')}",
+    "all": true
+  },
+  {
+    "find": "Ve a Inicio o Pendientes y selecciona una tarea para empezar",
+    "replace": "{t('pages.focus.emptyHint')}"
+  },
+  {
+    "find": ">Continuar</Button>",
+    "replace": ">{t('pages.focus.resume')}</Button>"
+  },
+  {
+    "find": ">Pausar</Button>",
+    "replace": ">{t('pages.focus.pause')}</Button>"
+  },
+  {
+    "find": ">Detener</Button>",
+    "replace": ">{t('pages.focus.stop')}</Button>"
+  },
+  {
+    "find": ">Excedido</",
+    "replace": ">{t('pages.focus.overtime')}</"
+  },
+  {
+    "find": ">Notas rápidas</h3>",
+    "replace": ">{t('pages.focus.notes')}</h3>"
+  },
+  {
+    "find": "Marcar como completada",
+    "replace": "{t('pages.focus.markCompleted')}",
+    "all": true
+  },
+  {
+    "find": ">Volver</Button>",
+    "replace": ">{t('pages.focus.back')}</Button>"
+  }
+]

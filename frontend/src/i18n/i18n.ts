@@ -48,11 +48,18 @@ export function resolveLocale(tag: string | undefined | null): SupportedLocale {
   return byBase ?? DEFAULT_LOCALE;
 }
 
+/**
+ * Walks a dotted key through nested catalogs.
+ *
+ * Only a catalog can be descended into: a string leaf or a plural message has
+ * no message keys of its own, so returning `undefined` lets the caller fall
+ * back to the requested locale and finally to the key.
+ */
 function lookup(catalog: Catalog, key: string): MessageValue | Catalog | undefined {
   let node: MessageValue | Catalog | undefined = catalog;
 
   for (const segment of key.split('.')) {
-    if (node === undefined || typeof node === 'string' || !isPluralMessage(node)) {
+    if (node === undefined || typeof node === 'string' || isPluralMessage(node)) {
       return undefined;
     }
     node = node[segment];

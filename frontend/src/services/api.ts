@@ -39,6 +39,43 @@ class ApiService {
     );
   }
 
+  /**
+   * Generic passthroughs.
+   *
+   * Several screens call endpoints that have no dedicated wrapper yet. These
+   * return the full axios response so callers keep using `.data`, matching the
+   * dedicated wrappers and avoiding a second axios instance that would skip the
+   * auth interceptors.
+   *
+   * The generic defaults to `any` because these endpoints are not typed yet;
+   * adding a concrete response type per endpoint belongs with the wrapper for
+   * that endpoint, not here.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async get<T = any>(url: string, config?: Record<string, unknown>) {
+    return this.client.get<T>(url, config);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async post<T = any>(url: string, data?: unknown, config?: Record<string, unknown>) {
+    return this.client.post<T>(url, data, config);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async put<T = any>(url: string, data?: unknown, config?: Record<string, unknown>) {
+    return this.client.put<T>(url, data, config);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async patch<T = any>(url: string, data?: unknown, config?: Record<string, unknown>) {
+    return this.client.patch<T>(url, data, config);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async delete<T = any>(url: string, config?: Record<string, unknown>) {
+    return this.client.delete<T>(url, config);
+  }
+
   // Auth
   async initiateLogin() {
     const response = await this.client.get('/auth/login');

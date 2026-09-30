@@ -11,25 +11,15 @@ from app.models.audit_log import AuditLog
 from app.models.email import Email
 from app.models.task import Task
 from app.models.user import User
+from app.multi_tenancy.middleware import require_tenant_admin
 from app.multi_tenancy.models import Tenant, TenantInvitation, TenantSettings, TenantUser
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-
-def get_current_user(request) -> User:
-    """Get current authenticated user."""
-    # This would come from auth middleware
-    # For now, get first user
-    user = request.state.get("current_user")
-    if not user:
-        raise HTTPException(status_code=401, detail="Authentication required")
-    return user
-
-
-def require_admin(user: User = Depends(get_current_user)) -> User:
-    """Require admin role."""
-    # Check if user is admin (would check TenantUser role)
-    return user
+# Authorization lives in the multi-tenancy layer: roles are per tenant, so the
+# check must read the TenantUser membership rather than the user record. A local
+# `require_admin` that only checked the user would grant admin to everyone.
+require_admin = require_tenant_admin
 
 
 # Tenant Management
@@ -50,9 +40,9 @@ async def list_tenants(
             Tenant.name.ilike(f"%{search}%") | Tenant.slug.ilike(f"%{search}%")
         )
     if status == "active":
-        stmt = stmt.where(Tenant.is_active == True)
+        stmt = stmt.where(Tenant.is_active.is_(True))
     elif status == "inactive":
-        stmt = stmt.where(Tenant.is_active == False)
+        stmt = stmt.where(Tenant.is_active.is_(False))
 
     stmt = stmt.order_by(desc(Tenant.created_at))
 
@@ -512,7 +502,7 @@ async def get_system_metrics(
     # Total tenants
     total_tenants = (await db.execute(select(func.count(Tenant.id)))).scalar()
     active_tenants = (await db.execute(
-        select(func.count(Tenant.id)).where(Tenant.is_active == True)
+        select(func.count(Tenant.id)).where(Tenant.is_active.is_(True))
     )).scalar()
 
     # Total users

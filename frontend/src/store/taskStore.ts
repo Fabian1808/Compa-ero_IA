@@ -2,6 +2,18 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Task, TaskFilter, TaskStats } from '@/types/task';
 import { Project } from '@/types/api';
+import { api } from '@/services/api';
+
+/** Payload returned by `GET /projects/{id}/progress`. */
+export interface ProjectProgress {
+  project_id: string;
+  name: string;
+  progress: number;
+  total_tasks: number;
+  completed_tasks: number;
+  in_progress_tasks: number;
+  blocked_tasks: number;
+}
 
 interface TaskState {
   tasks: Task[];
@@ -23,6 +35,13 @@ interface TaskState {
   setStats: (stats: TaskStats) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+
+  // Projects
+  fetchProjects: () => Promise<void>;
+  createProject: (data: Partial<Project>) => Promise<void>;
+  updateProject: (id: string, data: Partial<Project>) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
+  getProjectProgress: (id: string) => Promise<ProjectProgress>;
 }
 
 export const useTaskStore = create<TaskState>()(
@@ -54,6 +73,42 @@ export const useTaskStore = create<TaskState>()(
       setStats: (stats) => set({ stats }),
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
+
+      // Projects: the API is the source of truth, so every mutation refetches
+      // the list instead of patching local state and drifting from the server.
+      fetchProjects: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await api.get<Project[]>('/projects');
+          set({ projects: response.data });
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : 'Failed to load projects' });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      createProject: async (data) => {
+        const response = await api.post<Project>('/projects', data);
+        set((state) => ({ projects: [response.data, ...state.projects] }));
+      },
+
+      updateProject: async (id, data) => {
+        const response = await api.patch<Project>(`/projects/${id}`, data);
+        set((state) => ({
+          projects: state.projects.map((p) => (p.id === id ? response.data : p)),
+        }));
+      },
+
+      deleteProject: async (id) => {
+        await api.delete(`/projects/${id}`);
+        set((state) => ({ projects: state.projects.filter((p) => p.id !== id) }));
+      },
+
+      getProjectProgress: async (id) => {
+        const response = await api.get<ProjectProgress>(`/projects/${id}/progress`);
+        return response.data;
+      },
     }),
     {
       name: 'task-storage',

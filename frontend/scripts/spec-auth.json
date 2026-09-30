@@ -1,0 +1,43 @@
+[
+  {
+    "find": "export function AuthPage() {",
+    "replace": "export function AuthPage() {\n  const { t } = useI18n();"
+  },
+  {
+    "find": ">AI Workmate</h1>",
+    "replace": ">{t('pages.auth.title')}</h1>"
+  },
+  {
+    "find": "Conecta tu cuenta de Microsoft para comenzar",
+    "replace": "{t('pages.auth.subtitle')}"
+  },
+  {
+    "find": ">Conectar Microsoft Outlook<",
+    "replace": ">{t('pages.auth.connect')}<"
+  },
+  {
+    "find": ">Copiar<",
+    "replace": ">{t('pages.auth.copy')}<"
+  },
+  {
+    "find": "Has iniciado sesión correctamente. Redirigiendo...",
+    "replace": "{t('pages.auth.success')}"
+  },
+  {
+    "find": "No se pudo completar la autenticación.",
+    "replace": "{t('pages.auth.failure')}"
+  },
+  {
+    "find": ">Intentar de nuevo<",
+    "replace": ">{t('pages.auth.retry')}<"
+  },
+  {
+    "find": "Tiempo restante:",
+    "replace": "{t('pages.auth.expiresIn')}:"
+  },
+  {
+    "find": "Cargando...",
+    "replace": "{t('common.loading')}",
+    "all": true
+  }
+]

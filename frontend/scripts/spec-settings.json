@@ -1,0 +1,194 @@
+[
+  {
+    "find": "import { format } from 'date-fns';",
+    "replace": "import { format } from 'date-fns';\nimport { useI18n } from '@/i18n/I18nProvider';"
+  },
+  {
+    "find": "  const { theme, setTheme } = useUIStore();",
+    "replace": "  const { theme, setTheme } = useUIStore();\n  const { t, locale, setLocale } = useI18n();"
+  },
+  {
+    "find": "{ id: 'general', label: 'General', icon: Monitor },",
+    "replace": "{ id: 'general', label: t('pages.settings.sections.general'), icon: Monitor },"
+  },
+  {
+    "find": "{ id: 'notifications', label: 'Notificaciones', icon: Bell },",
+    "replace": "{ id: 'notifications', label: t('pages.settings.sections.notifications'), icon: Bell },"
+  },
+  {
+    "find": "{ id: 'account', label: 'Cuenta', icon: User },",
+    "replace": "{ id: 'account', label: t('pages.settings.sections.account'), icon: User },"
+  },
+  {
+    "find": "{ id: 'advanced', label: 'Avanzado', icon: Database },",
+    "replace": "{ id: 'advanced', label: t('pages.settings.sections.advanced'), icon: Database },"
+  },
+  {
+    "find": ">Configuración</h1>",
+    "replace": ">{t('pages.settings.title')}</h1>"
+  },
+  {
+    "find": "<p className=\"text-slate-500 dark:text-slate-400\">Personaliza tu experiencia en AI Workmate</p>",
+    "replace": "<p className=\"text-slate-500 dark:text-slate-400\">{t('pages.settings.subtitle')}</p>"
+  },
+  {
+    "find": "              General\n            </CardTitle>",
+    "replace": "              {t('pages.settings.sections.general')}\n            </CardTitle>"
+  },
+  {
+    "find": "mb-3\">Tema</label>",
+    "replace": "mb-3\">{t('pages.settings.sections.theme')}</label>"
+  },
+  {
+    "find": "<span className=\"capitalize text-sm\">{t}</span>",
+    "replace": "<span className=\"text-sm\">{t(\u0060pages.settings.themes.${themeName}\u0060)}</span>"
+  },
+  {
+    "find": "mb-3\">Idioma</label>",
+    "replace": "mb-3\">{t('pages.settings.sections.language')}</label>"
+  },
+  {
+    "find": "<select className=\"input w-full max-w-xs\" defaultValue=\"es\">\n                <option value=\"es\">Español</option>\n                <option value=\"en\">English</option>\n              </select>",
+    "replace": "<select\n                className=\"input w-full max-w-xs\"\n                value={locale}\n                onChange={(e) => setLocale(e.target.value as typeof locale)}\n              >\n                <option value=\"es-PE\">{t('pages.settings.languages.es')}</option>\n                <option value=\"en-US\">{t('pages.settings.languages.en')}</option>\n              </select>"
+  },
+  {
+    "find": "              Notificaciones\n            </CardTitle>",
+    "replace": "              {t('pages.settings.sections.notifications')}\n            </CardTitle>"
+  },
+  {
+    "find": ">Activar notificaciones</h4>",
+    "replace": ">{t('pages.settings.notifications.enabled')}</h4>"
+  },
+  {
+    "find": ">Recibir alertas importantes</p>",
+    "replace": ">{t('pages.settings.notifications.receiveImportant')}</p>"
+  },
+  {
+    "find": ">Modo enfoque silencia no críticas</h4>",
+    "replace": ">{t('pages.settings.notifications.focusMode')}</h4>"
+  },
+  {
+    "find": ">Solo mostrar alertas críticas durante el modo enfoque</p>",
+    "replace": ">{t('pages.settings.notifications.focusModeHint')}</p>"
+  },
+  {
+    "find": "mb-1\">Briefing diario a las</label>",
+    "replace": "mb-1\">{t('pages.settings.notifications.dailyBriefing')}</label>"
+  },
+  {
+    "find": "mb-1\">Cierre del día a las</label>",
+    "replace": "mb-1\">{t('pages.settings.notifications.endOfDay')}</label>"
+  },
+  {
+    "find": "mb-1\">Recordar deadlines (min antes)</label>",
+    "replace": "mb-1\">{t('pages.settings.notifications.deadlines')}</label>"
+  },
+  {
+    "find": "mb-1\">Recordar reuniones (min antes)</label>",
+    "replace": "mb-1\">{t('pages.settings.notifications.meetings')}</label>"
+  },
+  {
+    "find": "              Cuenta\n            </CardTitle>",
+    "replace": "              {t('pages.settings.sections.account')}\n            </CardTitle>"
+  },
+  {
+    "find": "mt-1\">ID: {user.id.slice(0, 8)}...</p>",
+    "replace": "mt-1\">{t('pages.settings.account.id')}: {user.id.slice(0, 8)}...</p>"
+  },
+  {
+    "find": "mb-1\">Nombre</label>",
+    "replace": "mb-1\">{t('pages.settings.fields.name')}</label>"
+  },
+  {
+    "find": "mb-1\">Email</label>",
+    "replace": "mb-1\">{t('pages.settings.fields.email')}</label>"
+  },
+  {
+    "find": "              Cerrar sesión\n            </Button>",
+    "replace": "              {t('pages.settings.account.logout')}\n            </Button>"
+  },
+  {
+    "find": "              Datos y sincronización\n              </CardTitle>",
+    "replace": "              {t('pages.settings.sections.data')}\n              </CardTitle>"
+  },
+  {
+    "find": ">Sincronización automática</h4>",
+    "replace": ">{t('pages.settings.data.autoSync')}</h4>"
+  },
+  {
+    "find": ">Cada 5 minutos</p>",
+    "replace": ">{t('pages.settings.data.autoSyncHint')}</p>"
+  },
+  {
+    "find": "                  Sincronizar ahora\n                </Button>",
+    "replace": "                  {t('pages.settings.data.syncNow')}\n                </Button>"
+  },
+  {
+    "find": ">Sincronización completada</div>",
+    "replace": ">{t('pages.settings.data.syncCompleted')}</div>"
+  },
+  {
+    "find": ">Error en la sincronización</div>",
+    "replace": ">{t('pages.settings.data.syncFailed')}</div>"
+  },
+  {
+    "find": ">Exportar datos</h4>",
+    "replace": ">{t('pages.settings.data.export')}</h4>"
+  },
+  {
+    "find": ">Descargar todas tus tareas y proyectos</p>",
+    "replace": ">{t('pages.settings.data.exportHint')}</p>"
+  },
+  {
+    "find": "                  Exportar JSON\n                </Button>",
+    "replace": "                  {t('pages.settings.data.exportJson')}\n                </Button>"
+  },
+  {
+    "find": ">Borrar todos los datos</h4>",
+    "replace": ">{t('pages.settings.data.clear')}</h4>"
+  },
+  {
+    "find": ">Eliminar tareas, proyectos e historial (irreversible)</p>",
+    "replace": ">{t('pages.settings.data.clearHint')}</p>"
+  },
+  {
+    "find": "                  Borrar todo\n                </Button>",
+    "replace": "                  {t('pages.settings.data.clearAll')}\n                </Button>"
+  },
+  {
+    "find": "                IA y privacidad\n              </CardTitle>",
+    "replace": "                {t('pages.settings.sections.ai')}\n              </CardTitle>"
+  },
+  {
+    "find": ">Procesamiento local</h4>",
+    "replace": ">{t('pages.settings.ai.localProcessing')}</h4>"
+  },
+  {
+    "find": ">Usar Ollama local (phi3:3.8b)</p>",
+    "replace": ">{t('pages.settings.ai.local')}</p>"
+  },
+  {
+    "find": ">Memoria semántica</h4>",
+    "replace": ">{t('pages.settings.ai.semanticMemory')}</h4>"
+  },
+  {
+    "find": ">Almacenar embeddings localmente (Qdrant)</p>",
+    "replace": ">{t('pages.settings.ai.localEmbeddings')}</p>"
+  },
+  {
+    "find": ">Enviar datos a IA</h4>",
+    "replace": ">{t('pages.settings.ai.sendData')}</h4>"
+  },
+  {
+    "find": ">Solo se envía texto necesario para análisis</p>",
+    "replace": ">{t('pages.settings.ai.sendDataHint')}</p>"
+  },
+  {
+    "find": ">Zona de peligro\n              </CardTitle>",
+    "replace": ">{t('pages.settings.sections.danger')}\n              </CardTitle>"
+  },
+  {
+    "find": "                Eliminar cuenta y todos los datos\n              </Button>",
+    "replace": "                {t('pages.settings.danger.deleteAccount')}\n              </Button>"
+  }
+]

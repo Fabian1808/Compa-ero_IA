@@ -1,0 +1,118 @@
+[
+  {
+    "find": "import { formatRelativeTime, formatDate } from '@/utils/formatters';",
+    "replace": "import { formatRelativeTime, formatDate } from '@/utils/formatters';\nimport { useI18n } from '@/i18n/I18nProvider';"
+  },
+  {
+    "find": "export function CommitmentsPage() {",
+    "replace": "export function CommitmentsPage() {\n  const { t } = useI18n();"
+  },
+  {
+    "find": "    if (!confirm('¿Eliminar este compromiso?')) return;",
+    "replace": "    if (!confirm(t('pages.commitments.deleteConfirm'))) return;"
+  },
+  {
+    "find": "  const getStatusLabel = (status: string) => {\n    const labels: Record<string, string> = {\n      'pending': 'Pendiente',\n      'confirmed': 'Confirmado',\n      'completed': 'Completado',\n      'cancelled': 'Cancelado',\n      'expired': 'Expirado',\n    };\n    return labels[status] || status;\n  };",
+    "replace": "  const getStatusLabel = (status: string) => {\n    const key = \u0060pages.commitments.statuses.${status}\u0060;\n    const label = t(key);\n    return label === key ? status : label;\n  };"
+  },
+  {
+    "find": ">Compromisos</h1>",
+    "replace": ">{t('pages.commitments.title')}</h1>"
+  },
+  {
+    "find": ">Tus promesas y compromisos adquiridos</p>",
+    "replace": ">{t('pages.commitments.subtitle')}</p>"
+  },
+  {
+    "find": "          Nuevo compromiso\n        </Button>",
+    "replace": "          {t('pages.commitments.new')}\n        </Button>"
+  },
+  {
+    "find": "mb-2\">No hay compromisos</h3>",
+    "replace": "mb-2\">{t('pages.commitments.empty')}</h3>"
+  },
+  {
+    "find": "mb-4\">Registra tus promesas para no olvidarlas</p>",
+    "replace": "mb-4\">{t('pages.commitments.emptyHint')}</p>"
+  },
+  {
+    "find": "              Crear primer compromiso\n            </Button>",
+    "replace": "              {t('pages.commitments.createFirst')}\n            </Button>"
+  },
+  {
+    "find": "tracking-wider\">Compromiso</th>",
+    "replace": "tracking-wider\">{t('pages.commitments.fields.title')}</th>"
+  },
+  {
+    "find": "tracking-wider\">Fecha límite</th>",
+    "replace": "tracking-wider\">{t('pages.commitments.fields.dueDate')}</th>"
+  },
+  {
+    "find": "tracking-wider\">Estado</th>",
+    "replace": "tracking-wider\">{t('pages.commitments.fields.status')}</th>"
+  },
+  {
+    "find": "tracking-wider\">Confianza</th>",
+    "replace": "tracking-wider\">{t('pages.commitments.fields.confidence')}</th>"
+  },
+  {
+    "find": "tracking-wider\">Acciones</th>",
+    "replace": "tracking-wider\">{t('pages.commitments.fields.actions')}</th>"
+  },
+  {
+    "find": "                          Creado {formatRelativeTime(c.committed_at)}",
+    "replace": "                          {t('pages.commitments.created', { time: formatRelativeTime(c.committed_at) })}"
+  },
+  {
+    "find": "(Vencido)</span>",
+    "replace": "({t('pages.commitments.overdue')})</span>"
+  },
+  {
+    "find": ">Sin fecha</span>",
+    "replace": ">{t('pages.commitments.noDate')}</span>"
+  },
+  {
+    "find": "{editingCommitment ? 'Editar compromiso' : 'Nuevo compromiso'}",
+    "replace": "{editingCommitment ? t('pages.commitments.edit') : t('pages.commitments.new')}"
+  },
+  {
+    "find": "mb-1\">Compromiso</label>",
+    "replace": "mb-1\">{t('pages.commitments.fields.title')}</label>"
+  },
+  {
+    "find": "placeholder=\"¿Qué te comprometiste a hacer?\"",
+    "replace": "placeholder={t('pages.commitments.placeholder')}"
+  },
+  {
+    "find": "mb-1\">Fecha límite</label>",
+    "replace": "mb-1\">{t('pages.commitments.fields.dueDate')}</label>"
+  },
+  {
+    "find": "mb-1\">Estado</label>",
+    "replace": "mb-1\">{t('pages.commitments.fields.status')}</label>"
+  },
+  {
+    "find": "<option value=\"pending\">Pendiente</option>",
+    "replace": "<option value=\"pending\">{t('pages.commitments.statuses.pending')}</option>"
+  },
+  {
+    "find": "<option value=\"confirmed\">Confirmado</option>",
+    "replace": "<option value=\"confirmed\">{t('pages.commitments.statuses.confirmed')}</option>"
+  },
+  {
+    "find": "<option value=\"completed\">Completado</option>",
+    "replace": "<option value=\"completed\">{t('pages.commitments.statuses.completed')}</option>"
+  },
+  {
+    "find": "<option value=\"cancelled\">Cancelado</option>",
+    "replace": "<option value=\"cancelled\">{t('pages.commitments.statuses.cancelled')}</option>"
+  },
+  {
+    "find": ">Cancelar</Button>",
+    "replace": ">{t('common.cancel')}</Button>"
+  },
+  {
+    "find": "{editingCommitment ? 'Guardar' : 'Crear'}",
+    "replace": "{editingCommitment ? t('common.save') : t('common.create')}"
+  }
+]

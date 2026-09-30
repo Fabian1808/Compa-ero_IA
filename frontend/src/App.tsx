@@ -42,6 +42,32 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
 }
 
+/**
+ * Gate for `/admin/*`.
+ *
+ * Authentication alone is not enough: the API answers 403 to callers whose
+ * tenant membership is not `owner` or `admin`. Redirecting here keeps the
+ * screens from rendering at all for members. This is convenience only — the
+ * server-side check is what actually protects the data.
+ */
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return isAdmin ? <>{children}</> : <Navigate to="/" replace />;
+}
+
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -129,7 +155,7 @@ export function App() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/focus" element={<FocusPage />} />
         </Route>
-        <Route element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
+        <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/admin/tenants" element={<AdminTenantsPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />

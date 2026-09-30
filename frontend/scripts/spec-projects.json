@@ -1,0 +1,71 @@
+[
+  {
+    "find": "import { formatDate, getPriorityColor } from '@/utils/formatters';",
+    "replace": "import { formatDate, getPriorityColor } from '@/utils/formatters';\nimport { useI18n } from '@/i18n/I18nProvider';"
+  },
+  {
+    "find": "export function ProjectsPage() {",
+    "replace": "export function ProjectsPage() {\n  const { t } = useI18n();"
+  },
+  {
+    "find": ">Proyectos</h1>",
+    "replace": ">{t('pages.projects.title')}</h1>"
+  },
+  {
+    "find": ">Organiza tu trabajo por proyectos</p>",
+    "replace": ">{t('pages.projects.subtitle')}</p>"
+  },
+  {
+    "find": "No hay proyectos",
+    "replace": "{t('pages.projects.empty')}",
+    "all": true
+  },
+  {
+    "find": "Crea tu primer proyecto para organizar tus tareas",
+    "replace": "{t('pages.projects.emptyHint')}"
+  },
+  {
+    "find": ">Nuevo proyecto</h1>",
+    "replace": ">{t('pages.projects.new')}</h1>"
+  },
+  {
+    "find": "<span>Nuevo proyecto</span>",
+    "replace": "<span>{t('pages.projects.new')}</span>"
+  },
+  {
+    "find": ">Crear proyecto</Button>",
+    "replace": ">{t('pages.projects.create')}</Button>"
+  },
+  {
+    "find": ">Nuevo proyecto</h2>",
+    "replace": ">{t('pages.projects.new')}</h2>"
+  },
+  {
+    "find": ">Editar proyecto</h2>",
+    "replace": ">{t('pages.projects.edit')}</h2>"
+  },
+  {
+    "find": ">Guardar cambios</Button>",
+    "replace": ">{t('pages.projects.saveChanges')}</Button>"
+  },
+  {
+    "find": ">Descripción</label>",
+    "replace": ">{t('pages.projects.fields.description')}</label>"
+  },
+  {
+    "find": ">Color</label>",
+    "replace": ">{t('pages.projects.fields.color')}</label>"
+  },
+  {
+    "find": ">Estado</label>",
+    "replace": ">{t('pages.projects.fields.status')}</label>"
+  },
+  {
+    "find": ">Progreso</span>",
+    "replace": ">{t('pages.projects.progress')}</span>"
+  },
+  {
+    "find": ">Cancelar</Button>",
+    "replace": ">{t('common.cancel')}</Button>"
+  }
+]

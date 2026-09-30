@@ -1,0 +1,34 @@
+[
+  {
+    "find": "export function DeadlinesPage() {",
+    "replace": "export function DeadlinesPage() {\n  const { t } = useI18n();"
+  },
+  {
+    "find": ">Deadlines</h1>",
+    "replace": ">{t('pages.deadlines.title')}</h1>"
+  },
+  {
+    "find": "Fechas límite de tareas y compromisos",
+    "replace": "{t('pages.deadlines.subtitle')}"
+  },
+  {
+    "find": "No hay deadlines",
+    "replace": "{t('pages.deadlines.empty')}"
+  },
+  {
+    "find": ">Vencidas<",
+    "replace": ">{t('pages.deadlines.overdue')}<"
+  },
+  {
+    "find": ">Próximas 24h<",
+    "replace": ">{t('pages.deadlines.next24h')}<"
+  },
+  {
+    "find": ">Esta semana<",
+    "replace": ">{t('pages.deadlines.thisWeek')}<"
+  },
+  {
+    "find": ">Todas (30 días)<",
+    "replace": ">{t('pages.deadlines.all30d')}<"
+  }
+]

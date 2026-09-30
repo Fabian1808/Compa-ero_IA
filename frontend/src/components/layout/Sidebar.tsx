@@ -39,6 +39,13 @@ const navigation = [
   { labelKey: 'nav.settings', href: '/settings', icon: Settings },
 ];
 
+/**
+ * Admin links follow the server-decided flag.
+ *
+ * `GET /auth/me` resolves the caller's tenant membership and ships `is_admin`;
+ * the client must not re-derive it from the role string, because that is how
+ * these links would end up visible to members who then get a 403 from the API.
+ */
 const adminNavigation = [
   { labelKey: 'admin.dashboard', href: '/admin', icon: LayoutDashboard },
   { labelKey: 'admin.tenants', href: '/admin/tenants', icon: Building2 },
@@ -53,11 +60,10 @@ export function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAdmin = useAuthStore((state) => state.isAdmin);
   const { t } = useI18n();
 
   if (!isAuthenticated) return null;
-
-  const isAdmin = user?.role === 'admin' || user?.role === 'owner';
 
   const navLinkClass = (isActive: boolean, admin: boolean) =>
     `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${

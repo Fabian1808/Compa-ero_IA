@@ -1,26 +1,41 @@
 import { useCallback, useEffect } from 'react';
 import { api } from '@/services/api';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore, type Session } from '@/store/authStore';
 
 export function useAuth() {
-  const { user, isAuthenticated, isLoading, setUser, setAuthenticated, setLoading, logout } = useAuthStore();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    role,
+    tenantId,
+    isAdmin,
+    setUser,
+    setSession,
+    setAuthenticated,
+    setLoading,
+    logout,
+  } = useAuthStore();
 
   const checkAuth = useCallback(async () => {
     setLoading(true);
     try {
-      // In a real app, this would validate the token with the backend
       const token = localStorage.getItem('access_token');
-      if (token) {
-        setAuthenticated(true);
-      } else {
+      if (!token) {
         setAuthenticated(false);
+        return;
       }
+
+      // Ask the API who the caller is and what role they hold. A token alone
+      // says nothing about admin rights: those live on the tenant membership.
+      const response = await api.get<Session>('/auth/me');
+      setSession(response.data);
     } catch {
       setAuthenticated(false);
     } finally {
       setLoading(false);
     }
-  }, [setAuthenticated, setLoading]);
+  }, [setAuthenticated, setLoading, setSession]);
 
   useEffect(() => {
     checkAuth();
@@ -49,6 +64,9 @@ export function useAuth() {
     user,
     isAuthenticated,
     isLoading,
+    role,
+    tenantId,
+    isAdmin,
     login,
     completeLogin,
     logout: logoutUser,

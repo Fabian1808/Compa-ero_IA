@@ -1,3 +1,4 @@
+﻿import type { SupportedLocale } from './i18n';
 import type { PluralCase, PluralCategory } from './plural';
 
 /**
@@ -24,3 +25,11 @@ export interface TranslateOptions extends InterpolationValues {
   /** Supplies the count used for pluralization and for `{count}` interpolation. */
   count?: number;
 }
+
+/**
+ * Signature of the translation function.
+ *
+ * Lives here rather than in `I18nProvider` so that helpers and presentational
+ * components can import the type without pulling in a JSX module.
+ */
+export type TFunction = (key: string, options?: TranslateOptions) => string;

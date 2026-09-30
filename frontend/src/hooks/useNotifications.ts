@@ -63,6 +63,7 @@ export function useNotifications() {
     settings,
     isLoading,
     fetchNotifications,
+    fetchSettings,
     markAsRead,
     updateSettings,
   };

@@ -1,35 +1,43 @@
 import { useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
-import { Task, TaskStatus } from '@/types/task';
+import { Task, TaskStatus, TaskPriority } from '@/types/task';
 import { Card, CardContent, Button, Input, Badge, Separator } from '@/components/ui';
-import { Plus, Search, Filter, ChevronDown, CheckCircle, PauseCircle, XCircle, AlertTriangle, Flag } from 'lucide-react';
+import { Plus, Search, Filter, ChevronDown, CheckCircle, PauseCircle, XCircle, AlertTriangle, Flag, X } from 'lucide-react';
 import { formatDate, getStatusColor, getPriorityColor, classNames } from '@/utils/formatters';
-
-const statusOptions: { value: TaskStatus; label: string }[] = [
-  { value: 'pending', label: 'Pendientes' },
-  { value: 'in_progress', label: 'En marcha' },
-  { value: 'blocked', label: 'Bloqueadas' },
-  { value: 'waiting_response', label: 'Esperando respuesta' },
-  { value: 'requires_decision', label: 'Requiere decisión' },
-  { value: 'completed', label: 'Completadas' },
-  { value: 'cancelled', label: 'Canceladas' },
-];
-
-const priorityOptions: { value: string; label: string }[] = [
-  { value: '', label: 'Todas las prioridades' },
-  { value: 'critical', label: 'Crítica' },
-  { value: 'high', label: 'Alta' },
-  { value: 'medium', label: 'Media' },
-  { value: 'low', label: 'Baja' },
-];
+import { useI18n } from '@/i18n/I18nProvider';
 
 export function TasksPage() {
   const { tasks, projects, filter, isLoading, createTask, updateTask, completeTask, startFocus, setFilter, fetchTasks } = useTasks();
+  const { t } = useI18n();
+
+  /**
+   * Filter labels are resolved at render time so they follow the active locale.
+   * Status wording comes from dedicated catalog keys to keep "En curso" rather
+   * than the older "En marcha".
+   */
+  const statusOptions: { value: TaskStatus; label: string }[] = [
+    { value: 'pending', label: t('pages.tasks.statusFilters.pending') },
+    { value: 'in_progress', label: t('pages.tasks.statusFilters.inProgress') },
+    { value: 'blocked', label: t('pages.tasks.statusFilters.blocked') },
+    { value: 'waiting_response', label: t('pages.tasks.statusFilters.waiting') },
+    { value: 'requires_decision', label: t('pages.tasks.statusFilters.needsDecision') },
+    { value: 'completed', label: t('pages.tasks.statusFilters.completed') },
+    { value: 'cancelled', label: t('pages.tasks.statusFilters.cancelled') },
+  ];
+
+  const priorityOptions: { value: string; label: string }[] = [
+    { value: '', label: t('pages.tasks.priorities.all') },
+    { value: 'critical', label: t('pages.tasks.priorities.critical') },
+    { value: 'high', label: t('pages.tasks.priorities.high') },
+    { value: 'medium', label: t('pages.tasks.priorities.medium') },
+    { value: 'low', label: t('pages.tasks.priorities.low') },
+  ];
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus[]>(filter.status || ['pending', 'in_progress', 'blocked']);
   const [selectedPriority, setSelectedPriority] = useState('');
-  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium' as const, project_id: '' });
+  const [newTask, setNewTask] = useState<{ title: string; description: string; priority: TaskPriority; project_id: string }>({ title: '', description: '', priority: 'medium', project_id: '' });
 
   const filteredTasks = tasks.filter((task) => {
     if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
@@ -84,12 +92,12 @@ export function TasksPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pendientes</h1>
-          <p className="text-slate-500 dark:text-slate-400">Gestiona y organiza tus tareas</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('pages.tasks.title')}</h1>
+          <p className="text-slate-500 dark:text-slate-400">{t('pages.tasks.subtitle')}</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4" />
-          Nueva tarea
+          {t('pages.tasks.new')}
         </Button>
       </div>
 
@@ -100,7 +108,7 @@ export function TasksPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Buscar tareas..."
+                placeholder={t('pages.tasks.filters.search')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -150,13 +158,13 @@ export function TasksPage() {
           {isLoading ? (
             <div className="p-8 text-center text-slate-500 dark:text-slate-400">
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent mx-auto mb-2" />
-              Cargando tareas...
+              {t('pages.tasks.loading')}
             </div>
           ) : filteredTasks.length === 0 ? (
             <div className="p-8 text-center text-slate-500 dark:text-slate-400">
               <Flag className="h-12 w-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-              <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-1">No hay tareas</h3>
-              <p className="text-sm">Intenta cambiar los filtros o crea una nueva tarea</p>
+              <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-1">{t('pages.tasks.empty')}</h3>
+              <p className="text-sm">{t('pages.tasks.emptyHint')}</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -224,52 +232,52 @@ export function TasksPage() {
           <Card className="w-full max-w-md">
             <CardContent className="py-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Nueva tarea</h2>
+                <h2 className="text-lg font-semibold">{t('pages.tasks.new')}</h2>
                 <Button variant="ghost" size="sm" onClick={() => setShowCreateModal(false)}>
                   <X className="h-5 w-5" />
                 </Button>
               </div>
               <form onSubmit={handleCreateTask} className="space-y-4">
                 <Input
-                  label="Título"
+                  label={t('pages.tasks.fields.title')}
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                  placeholder="¿Qué necesitas hacer?"
+                  placeholder={t('pages.tasks.placeholders.title')}
                   required
                   autoFocus
                 />
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descripción</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.tasks.fields.description')}</label>
                   <textarea
                     value={newTask.description}
                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                     rows={3}
                     className="input resize-none"
-                    placeholder="Detalles adicionales..."
+                    placeholder={t('pages.tasks.placeholders.description')}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Prioridad</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.tasks.fields.priority')}</label>
                     <select
                       value={newTask.priority}
-                      onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' | 'critical' })}
+                      onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as TaskPriority })}
                       className="input"
                     >
-                      <option value="low">Baja</option>
-                      <option value="medium">Media</option>
-                      <option value="high">Alta</option>
-                      <option value="critical">Crítica</option>
+                      <option value="low">{t('pages.tasks.priorities.low')}</option>
+                      <option value="medium">{t('pages.tasks.priorities.medium')}</option>
+                      <option value="high">{t('pages.tasks.priorities.high')}</option>
+                      <option value="critical">{t('pages.tasks.priorities.critical')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Proyecto</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.tasks.fields.project')}</label>
                     <select
                       value={newTask.project_id}
                       onChange={(e) => setNewTask({ ...newTask, project_id: e.target.value || '' })}
                       className="input"
                     >
-                      <option value="">Sin proyecto</option>
+                      <option value="">{t('pages.tasks.noProject')}</option>
                       {projects.map((p) => (
                         <option key={p.id} value={p.id}>{p.name}</option>
                       ))}
@@ -277,8 +285,8 @@ export function TasksPage() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="secondary" type="button" onClick={() => setShowCreateModal(false)}>Cancelar</Button>
-                  <Button type="submit">Crear tarea</Button>
+                  <Button variant="secondary" type="button" onClick={() => setShowCreateModal(false)}>{t('common.cancel')}</Button>
+                  <Button type="submit">{t('pages.tasks.create')}</Button>
                 </div>
               </form>
             </CardContent>

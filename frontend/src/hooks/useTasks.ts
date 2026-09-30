@@ -22,6 +22,10 @@ export function useTasks() {
     setStats,
     setLoading,
     setError,
+    createProject,
+    updateProject,
+    deleteProject,
+    getProjectProgress,
   } = useTaskStore();
 
   const fetchTasks = useCallback(async () => {
@@ -144,6 +148,11 @@ export function useTasks() {
     isLoading,
     error,
     fetchTasks,
+    fetchProjects,
+    createProject,
+    updateProject,
+    deleteProject,
+    getProjectProgress,
     createTask,
     updateTask: updateTaskById,
     completeTask: completeTaskById,

@@ -1,7 +1,12 @@
 ﻿// Re-exports from api.ts for backward compatibility
 export type { Task, TaskStatus } from './api';
+import type { TaskStatus } from './api';
+
+/** Matches the backend `Task.priority` enum. */
+export type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
+
 export interface TaskFilter {
-  status?: string[];
+  status?: TaskStatus[];
   project_id?: string;
   priority?: string;
   search?: string;

@@ -3,6 +3,8 @@ import { api } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Input } from '@/components/ui';
 import { Mail, Clock, RefreshCw, Send, X, Edit, Eye, Loader2 } from 'lucide-react';
 import { formatRelativeTime, formatDate } from '@/utils/formatters';
+import { useI18n } from '@/i18n/I18nProvider';
+import { enumLabel } from '@/i18n/enumLabel';
 
 interface FollowUp {
   id: string;
@@ -17,6 +19,7 @@ interface FollowUp {
 }
 
 export function FollowupsPage() {
+  const { t } = useI18n();
   const [followups, setFollowups] = useState<FollowUp[]>([]);
   const [loading, setLoading] = useState(false);
   const [detecting, setDetecting] = useState(false);
@@ -94,30 +97,20 @@ export function FollowupsPage() {
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      'pending': 'Pendiente',
-      'reminder_sent': 'Recordatorio enviado',
-      'draft_prepared': 'Borrador listo',
-      'sent': 'Enviado',
-      'completed': 'Completado',
-      'dismissed': 'Descartado',
-    };
-    return labels[status] || status;
-  };
+  const getStatusLabel = (status: string) => enumLabel(t, 'pages.followups.statuses', status);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Seguimientos</h1>
-          <p className="text-slate-500 dark:text-slate-400">Correos que necesitan respuesta</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('pages.followups.title')}</h1>
+          <p className="text-slate-500 dark:text-slate-400">{t('pages.followups.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={detectFollowups} loading={detecting}>
             <RefreshCw className="h-4 w-4" />
-            Detectar seguimientos
+            {t('pages.followups.stopTracking')}
           </Button>
         </div>
       </div>
@@ -126,11 +119,11 @@ export function FollowupsPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <Mail className="h-16 w-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">No hay seguimientos pendientes</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-4">Todos tus correos han sido respondidos</p>
+            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">{t('pages.followups.nonePending')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">{t('pages.followups.allAnswered')}</p>
             <Button variant="secondary" onClick={detectFollowups} loading={detecting}>
               <RefreshCw className="h-4 w-4" />
-              Buscar seguimientos automáticamente
+              {t('pages.followups.detect')}
             </Button>
           </CardContent>
         </Card>
@@ -141,11 +134,11 @@ export function FollowupsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Asunto</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Contacto</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Enviado</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.followups.subject')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.followups.contact')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.followups.sent')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.followups.status')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pages.followups.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -181,14 +174,14 @@ export function FollowupsPage() {
                             <>
                               <Button variant="secondary" size="sm" onClick={() => prepareFollowup(followup)}>
                                 <Send className="h-4 w-4" />
-                                Enviar
+                                {t('pages.followups.send')}
                               </Button>
                             </>
                           )}
                           {followup.status === 'pending' && (
                             <Button variant="secondary" size="sm" onClick={() => prepareFollowup(followup)}>
                               <Edit className="h-4 w-4" />
-                              Preparar
+                              {t('pages.followups.prepare')}
                             </Button>
                           )}
                           <Button variant="ghost" size="sm" onClick={() => dismissFollowup(followup.id)} className="text-red-600 hover:text-red-700">
@@ -211,7 +204,7 @@ export function FollowupsPage() {
           <Card className="w-full max-w-2xl max-h-[80vh] flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                Borrador de seguimiento
+                {t('pages.followups.draft')}
                 <Button variant="ghost" size="sm" onClick={() => setEditingDraft(null)}>
                   <X className="h-5 w-5" />
                 </Button>
@@ -223,13 +216,13 @@ export function FollowupsPage() {
                 onChange={(e) => setEditingDraft({ ...editingDraft, content: e.target.value })}
                 className="flex-1 input resize-none font-mono text-sm"
                 rows={20}
-                placeholder="Edita el borrador antes de enviar..."
+                placeholder={t('pages.followups.draftPlaceholder')}
               />
               <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                <Button variant="secondary" onClick={() => setEditingDraft(null)}>Cancelar</Button>
+                <Button variant="secondary" onClick={() => setEditingDraft(null)}>{t('common.cancel')}</Button>
                 <Button onClick={() => saveDraft(editingDraft.id)}>
                   <Send className="h-4 w-4" />
-                  Guardar y enviar
+                  {t('pages.followups.saveAndSend')}
                 </Button>
               </div>
             </CardContent>

@@ -7,7 +7,7 @@ import { NextTaskCard } from '@/components/home/NextTaskCard';
 import { UpcomingMeetingCard } from '@/components/home/UpcomingMeetingCard';
 import { AttentionCard } from '@/components/home/AttentionCard';
 import { StatsCard } from '@/components/home/StatsCard';
-import { Card, CardContent, Button, Input } from '@/components/ui';
+import { Card, CardContent, Button, Input, Badge } from '@/components/ui';
 import { Search, Sparkles, RefreshCw, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';

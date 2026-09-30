@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
+import { useI18n, type TFunction } from '@/i18n/I18nProvider';
 import { Clock, AlertTriangle, Calendar, CheckCircle, Flag } from 'lucide-react';
 import { formatRelativeTime, formatDate, formatDuration } from '@/utils/formatters';
 
@@ -18,6 +19,7 @@ interface Deadline {
 }
 
 export function DeadlinesPage() {
+  const { t } = useI18n();
   const [allDeadlines, setAllDeadlines] = useState<Deadline[]>([]);
   const [upcomingDeadlines, setUpcomingDeadlines] = useState<Deadline[]>([]);
   const [loading, setLoading] = useState(false);
@@ -79,36 +81,36 @@ export function DeadlinesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Deadlines</h1>
-        <p className="text-slate-500 dark:text-slate-400">Fechas límite de tareas y compromisos</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('pages.deadlines.title')}</h1>
+        <p className="text-slate-500 dark:text-slate-400">{t('pages.deadlines.subtitle')}</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="upcoming">Próximas 24h</TabsTrigger>
-          <TabsTrigger value="this-week">Esta semana</TabsTrigger>
-          <TabsTrigger value="overdue">Vencidas</TabsTrigger>
-          <TabsTrigger value="all">Todas (30 días)</TabsTrigger>
+          <TabsTrigger value="upcoming">{t('pages.deadlines.next24h')}</TabsTrigger>
+          <TabsTrigger value="this-week">{t('pages.deadlines.thisWeek')}</TabsTrigger>
+          <TabsTrigger value="overdue">{t('pages.deadlines.overdue')}</TabsTrigger>
+          <TabsTrigger value="all">{t('pages.deadlines.all30d')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="upcoming" className="mt-4">
-          <DeadlinesList deadlines={upcomingDeadlines} loading={loading} />
+          <DeadlinesList deadlines={upcomingDeadlines} loading={loading} t={t} />
         </TabsContent>
         <TabsContent value="this-week" className="mt-4">
-          <DeadlinesList deadlines={filtered} loading={loading} />
+          <DeadlinesList deadlines={filtered} loading={loading} t={t} />
         </TabsContent>
         <TabsContent value="overdue" className="mt-4">
-          <DeadlinesList deadlines={filtered} loading={loading} />
+          <DeadlinesList deadlines={filtered} loading={loading} t={t} />
         </TabsContent>
         <TabsContent value="all" className="mt-4">
-          <DeadlinesList deadlines={filtered} loading={loading} />
+          <DeadlinesList deadlines={filtered} loading={loading} t={t} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function DeadlinesList({ deadlines, loading }: { deadlines: Deadline[]; loading: boolean }) {
+function DeadlinesList({ deadlines, loading, t }: { deadlines: Deadline[]; loading: boolean; t: TFunction }) {
   if (loading) {
     return (
       <Card>
@@ -124,7 +126,7 @@ function DeadlinesList({ deadlines, loading }: { deadlines: Deadline[]; loading:
       <Card>
         <CardContent className="py-12 text-center">
           <Calendar className="h-16 w-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">No hay deadlines</h3>
+          <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">{t('pages.deadlines.empty')}</h3>
           <p className="text-slate-500 dark:text-slate-400">¡Todo bajo control por ahora!</p>
         </CardContent>
       </Card>
@@ -156,7 +158,7 @@ function DeadlinesList({ deadlines, loading }: { deadlines: Deadline[]; loading:
           <CardContent>
             <div className="space-y-3">
               {grouped[date].map((deadline) => (
-                <DeadlineItem key={deadline.id} deadline={deadline} />
+                <DeadlineItem key={deadline.id} deadline={deadline} t={t} />
               ))}
             </div>
           </CardContent>
@@ -166,7 +168,7 @@ function DeadlinesList({ deadlines, loading }: { deadlines: Deadline[]; loading:
   );
 }
 
-function DeadlineItem({ deadline }: { deadline: Deadline }) {
+function DeadlineItem({ deadline, t }: { deadline: Deadline; t: TFunction }) {
   const isOverdue = deadline.deadline && new Date(deadline.deadline) < new Date();
   const hoursUntil = deadline.hours_until;
 

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+from fastapi import Depends, HTTPException
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from app.database import async_session_maker
+from app.database import async_session_maker, get_db
 from app.models.user import User
-from app.multi_tenancy.models import Tenant, TenantUser
+from app.multi_tenancy.models import TENANT_ADMIN_ROLES, Tenant, TenantUser
 
 
 class TenantMiddleware(BaseHTTPMiddleware):
@@ -68,7 +70,7 @@ class TenantMiddleware(BaseHTTPMiddleware):
                 async with async_session_maker() as db:
                     stmt = select(Tenant).where(
                         Tenant.slug == subdomain,
-                        Tenant.is_active == True,
+                        Tenant.is_active.is_(True),
                         Tenant.deleted_at.is_(None)
                     )
                     result = await db.execute(stmt)
@@ -81,7 +83,7 @@ class TenantMiddleware(BaseHTTPMiddleware):
             async with async_session_maker() as db:
                 stmt = select(Tenant).where(
                     Tenant.domain == host,
-                    Tenant.is_active == True,
+                    Tenant.is_active.is_(True),
                     Tenant.deleted_at.is_(None)
                 )
                 result = await db.execute(stmt)
@@ -95,7 +97,7 @@ class TenantMiddleware(BaseHTTPMiddleware):
             async with async_session_maker() as db:
                 stmt = select(Tenant).where(
                     Tenant.id == tenant_id,
-                    Tenant.is_active == True,
+                    Tenant.is_active.is_(True),
                     Tenant.deleted_at.is_(None)
                 )
                 result = await db.execute(stmt)
@@ -104,7 +106,7 @@ class TenantMiddleware(BaseHTTPMiddleware):
         # 4. Default tenant (for development)
         async with async_session_maker() as db:
             stmt = select(Tenant).where(
-                Tenant.is_active == True,
+                Tenant.is_active.is_(True),
                 Tenant.deleted_at.is_(None)
             ).limit(1)
             result = await db.execute(stmt)
@@ -132,7 +134,7 @@ class TenantMiddleware(BaseHTTPMiddleware):
                 stmt = select(TenantUser).where(
                     TenantUser.tenant_id == tenant.id,
                     TenantUser.user_id == user.id,
-                    TenantUser.is_active == True
+                    TenantUser.is_active.is_(True)
                 )
                 result = await db.execute(stmt)
                 membership = result.scalar_one_or_none()
@@ -157,14 +159,34 @@ def get_current_user(request: Request) -> User | None:
     return getattr(request.state, "current_user", None)
 
 
-def require_tenant_admin(request: Request) -> User:
-    """Dependency to require tenant admin role."""
+async def require_tenant_admin(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Dependency to require an admin or owner role in the current tenant.
+
+    Authorization is resolved from the ``TenantUser`` membership row, never from
+    the user record itself: roles are scoped per tenant, so a user may be an
+    admin in one tenant and a viewer in another.
+    """
     user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     tenant = get_current_tenant(request)
 
-    if not user:
-        raise Exception("Authentication required")
+    membership = await db.scalar(
+        select(TenantUser).where(
+            TenantUser.tenant_id == tenant.id,
+            TenantUser.user_id == user.id,
+            TenantUser.is_active.is_(True),
+        )
+    )
 
-    # Check admin role (would need to query TenantUser)
-    # For now, just return user
+    if membership is None:
+        raise HTTPException(status_code=403, detail="Not a member of this tenant")
+
+    if membership.role not in TENANT_ADMIN_ROLES:
+        raise HTTPException(status_code=403, detail="Tenant admin role required")
+
     return user

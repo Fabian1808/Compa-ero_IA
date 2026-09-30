@@ -51,6 +51,21 @@ class Tenant(Base):
     )
 
 
+#: Roles a member can hold within a tenant. Stored as a plain string on
+#: ``TenantUser.role``; these constants keep the values consistent.
+TENANT_ROLE_OWNER = "owner"
+TENANT_ROLE_ADMIN = "admin"
+TENANT_ROLE_MEMBER = "member"
+TENANT_ROLE_VIEWER = "viewer"
+
+TENANT_ROLES = frozenset(
+    {TENANT_ROLE_OWNER, TENANT_ROLE_ADMIN, TENANT_ROLE_MEMBER, TENANT_ROLE_VIEWER}
+)
+
+#: Roles allowed to administer a tenant.
+TENANT_ADMIN_ROLES = frozenset({TENANT_ROLE_OWNER, TENANT_ROLE_ADMIN})
+
+
 class TenantUser(Base):
     """User membership in a tenant."""
     __tablename__ = "tenant_users"

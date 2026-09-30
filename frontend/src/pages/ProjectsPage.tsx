@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { Project, ProjectStatus } from '@/types/api';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge } from '@/components/ui';
-import { Plus, FolderKanban, Edit, Trash2, CheckCircle, PauseCircle, Archive } from 'lucide-react';
+import { Plus, FolderKanban, Edit, Trash2, CheckCircle, PauseCircle, Archive, X } from 'lucide-react';
 import { formatDate, getPriorityColor } from '@/utils/formatters';
+import { useI18n } from '@/i18n/I18nProvider';
 
 const statusOptions: { value: ProjectStatus; label: string }[] = [
   { value: 'active', label: 'Activo' },
@@ -13,6 +14,7 @@ const statusOptions: { value: ProjectStatus; label: string }[] = [
 ];
 
 export function ProjectsPage() {
+  const { t } = useI18n();
   const { projects, fetchProjects, createProject, updateProject, deleteProject, getProjectProgress } = useTasks();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -70,12 +72,12 @@ export function ProjectsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Proyectos</h1>
-          <p className="text-slate-500 dark:text-slate-400">Organiza tu trabajo por proyectos</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('pages.projects.title')}</h1>
+          <p className="text-slate-500 dark:text-slate-400">{t('pages.projects.subtitle')}</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4" />
-          Nuevo proyecto
+          {t('pages.projects.new')}
         </Button>
       </div>
 
@@ -108,7 +110,7 @@ export function ProjectsPage() {
                 {/* Progress */}
                 <div className="mb-3">
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-slate-500 dark:text-slate-400">Progreso</span>
+                    <span className="text-slate-500 dark:text-slate-400">{t('pages.projects.progress')}</span>
                     <span className="font-medium text-slate-900 dark:text-slate-100">{progressPercent}%</span>
                   </div>
                   <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -140,8 +142,8 @@ export function ProjectsPage() {
           <Card className="col-span-full">
             <CardContent className="py-12 text-center">
               <FolderKanban className="h-12 w-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-              <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-1">No hay proyectos</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Crea tu primer proyecto para organizar tus tareas</p>
+              <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-1">{t('pages.projects.empty')}</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{t('pages.projects.emptyHint')}</p>
               <Button onClick={() => setShowCreateModal(true)}>
                 <Plus className="h-4 w-4" />
                 Crear proyecto
@@ -157,7 +159,7 @@ export function ProjectsPage() {
           <Card className="w-full max-w-md">
             <CardContent className="py-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Nuevo proyecto</h2>
+                <h2 className="text-lg font-semibold">{t('pages.projects.new')}</h2>
                 <Button variant="ghost" size="sm" onClick={() => setShowCreateModal(false)}>
                   <X className="h-5 w-5" />
                 </Button>
@@ -172,7 +174,7 @@ export function ProjectsPage() {
                   autoFocus
                 />
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descripción</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.projects.fields.description')}</label>
                   <textarea
                     value={newProject.description}
                     onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
@@ -182,7 +184,7 @@ export function ProjectsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Color</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.projects.fields.color')}</label>
                   <input
                     type="color"
                     value={newProject.color}
@@ -191,8 +193,8 @@ export function ProjectsPage() {
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="secondary" type="button" onClick={() => setShowCreateModal(false)}>Cancelar</Button>
-                  <Button type="submit">Crear proyecto</Button>
+                  <Button variant="secondary" type="button" onClick={() => setShowCreateModal(false)}>{t('common.cancel')}</Button>
+                  <Button type="submit">{t('pages.projects.create')}</Button>
                 </div>
               </form>
             </CardContent>
@@ -206,7 +208,7 @@ export function ProjectsPage() {
           <Card className="w-full max-w-md">
             <CardContent className="py-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Editar proyecto</h2>
+                <h2 className="text-lg font-semibold">{t('pages.projects.edit')}</h2>
                 <Button variant="ghost" size="sm" onClick={() => setEditingProject(null)}>
                   <X className="h-5 w-5" />
                 </Button>
@@ -237,7 +239,7 @@ export function ProjectsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estado</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('pages.projects.fields.status')}</label>
                   <select
                     value={editingProject.status}
                     onChange={(e) => setEditingProject({ ...editingProject!, status: e.target.value as ProjectStatus })}
@@ -250,7 +252,7 @@ export function ProjectsPage() {
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                   <Button variant="secondary" type="button" onClick={() => setEditingProject(null)}>Cancelar</Button>
-                  <Button type="submit">Guardar cambios</Button>
+                  <Button type="submit">{t('pages.projects.saveChanges')}</Button>
                 </div>
               </form>
             </CardContent>
