@@ -16,6 +16,7 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 
     accounts: Mapped[list["Account"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    sessions: Mapped[list["Session"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     tasks: Mapped[list["Task"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     projects: Mapped[list["Project"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     commitments: Mapped[list["Commitment"]] = relationship(back_populates="user", cascade="all, delete-orphan")

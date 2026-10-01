@@ -1,5 +1,5 @@
 export { I18nProvider, useI18n, useTranslation, currentLocale } from './I18nProvider';
-export type { I18nContextValue } from './I18nProvider';
+export type { I18nContextValue } from './types';
 
 export {
   DEFAULT_LOCALE,

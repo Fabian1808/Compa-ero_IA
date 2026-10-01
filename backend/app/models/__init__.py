@@ -1,5 +1,6 @@
 from app.models.user import User
 from app.models.account import Account
+from app.models.session import Session
 from app.models.email import Email, EmailThread
 from app.models.contact import Contact
 from app.models.task import Task, TaskDependency
@@ -26,6 +27,7 @@ from app.models.sharepoint import (
 __all__ = [
     "User",
     "Account",
+    "Session",
     "Email",
     "EmailThread",
     "Contact",

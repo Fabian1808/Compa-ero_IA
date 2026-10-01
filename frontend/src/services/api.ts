@@ -11,27 +11,16 @@ class ApiService {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true, // Important: send cookies with requests
     });
 
-    this.client.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
-        // Add auth token if available
-        const token = localStorage.getItem('access_token');
-        if (token && config.headers) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
+    // No longer need request interceptor for Bearer token - cookies are sent automatically
 
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          // Token expired or invalid
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
+          // Session expired or invalid - redirect to auth
           window.location.href = '/auth';
         }
         return Promise.reject(error);
@@ -84,28 +73,16 @@ class ApiService {
 
   async completeLogin(deviceCode: string) {
     const response = await this.client.post('/auth/callback', { device_code: deviceCode });
-    if (response.data.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
-      if (response.data.refresh_token) {
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-      }
-    }
+    // Tokens are now set as httpOnly cookies by the backend
     return response.data;
   }
 
-  async refreshToken() {
-    const refreshToken = localStorage.getItem('refresh_token');
-    if (!refreshToken) throw new Error('No refresh token');
-    const response = await this.client.post('/auth/refresh', { refresh_token: refreshToken });
-    if (response.data.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
-    }
-    return response.data;
+  async logout() {
+    await this.client.post('/auth/logout');
   }
 
-  logout() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+  async logoutAll() {
+    await this.client.post('/auth/logout-all');
   }
 
   // Emails

@@ -87,6 +87,9 @@ class Settings(BaseSettings):
     log_rotation: str = "10 MB"
     log_retention: str = "7 days"
 
+    # Cookies
+    cookie_secure: bool = True  # False for local dev (http), True for production (https)
+
     # Tauri
     tauri_backend_port: int = 8000
 

@@ -131,13 +131,13 @@ export function FirstRunInstallerPage() {
     setStep('installing');
     try {
       await api.installDependencies();
-      await pollProgress();
+      // polling will start automatically via the step change effect
     } catch (err) {
       console.error('Error starting installation:', err);
       setError('installer.installFailed');
       setStep('error');
     }
-  }, [pollProgress]);
+  }, []);
 
   const retry = useCallback(() => {
     void checkDependencies();

@@ -33,3 +33,14 @@ export interface TranslateOptions extends InterpolationValues {
  * components can import the type without pulling in a JSX module.
  */
 export type TFunction = (key: string, options?: TranslateOptions) => string;
+
+/**
+ * Context value for the i18n provider.
+ * Exported here to avoid circular imports with I18nProvider.tsx.
+ */
+export interface I18nContextValue {
+  locale: SupportedLocale;
+  availableLocales: readonly SupportedLocale[];
+  setLocale: (locale: SupportedLocale) => void;
+  t: TFunction;
+}

@@ -20,16 +20,15 @@ export function useAuth() {
   const checkAuth = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
+      // Check auth status via httpOnly cookie
+      const response = await api.get<{ authenticated: boolean; user: Session['user'] | null }>('/auth/status');
+      if (response.data.authenticated && response.data.user) {
+        // Fetch full session with tenant/role info
+        const sessionResponse = await api.get<Session>('/auth/me');
+        setSession(sessionResponse.data);
+      } else {
         setAuthenticated(false);
-        return;
       }
-
-      // Ask the API who the caller is and what role they hold. A token alone
-      // says nothing about admin rights: those live on the tenant membership.
-      const response = await api.get<Session>('/auth/me');
-      setSession(response.data);
     } catch {
       setAuthenticated(false);
     } finally {
@@ -47,16 +46,17 @@ export function useAuth() {
   };
 
   const completeLogin = async (deviceCode: string) => {
+    // The callback endpoint now sets httpOnly cookies and creates session
     const response = await api.completeLogin(deviceCode);
     if (response.access_token) {
-      // In a real app, fetch user info
-      setAuthenticated(true);
+      // Fetch session to get user/role/tenant info
+      await checkAuth();
     }
     return response;
   };
 
-  const logoutUser = () => {
-    api.logout();
+  const logoutUser = async () => {
+    await api.logout();
     logout();
   };
 
