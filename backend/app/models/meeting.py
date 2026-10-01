@@ -9,7 +9,7 @@ class Meeting(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True)
-    graph_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    graph_id: Mapped[str] = mapped_column(String(255), nullable=False)
     subject: Mapped[str] = mapped_column(String(500), nullable=False)
     start_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
     end_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

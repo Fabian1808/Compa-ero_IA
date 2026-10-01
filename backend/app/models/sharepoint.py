@@ -9,7 +9,7 @@ class SharePointSite(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True)
-    graph_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    graph_id: Mapped[str] = mapped_column(String(255), nullable=False)
     display_name: Mapped[str] = mapped_column(String(500), nullable=False)
     web_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -32,7 +32,7 @@ class SharePointDrive(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True)
     site_id: Mapped[str] = mapped_column(String(36), ForeignKey("sharepoint_sites.id", ondelete="CASCADE"), nullable=False, index=True)
-    graph_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    graph_id: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     drive_type: Mapped[str] = mapped_column(String(50), default="documentLibrary", nullable=False)
     web_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
@@ -54,7 +54,7 @@ class SharePointList(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True)
     site_id: Mapped[str] = mapped_column(String(36), ForeignKey("sharepoint_sites.id", ondelete="CASCADE"), nullable=False, index=True)
-    graph_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    graph_id: Mapped[str] = mapped_column(String(255), nullable=False)
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     list_template: Mapped[str | None] = mapped_column(String(50), nullable=True)  # genericList, documentLibrary, etc.
@@ -77,7 +77,7 @@ class SharePointListItem(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True)
     list_id: Mapped[str] = mapped_column(String(36), ForeignKey("sharepoint_lists.id", ondelete="CASCADE"), nullable=False, index=True)
-    graph_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    graph_id: Mapped[str] = mapped_column(String(255), nullable=False)
     fields_json: Mapped[str] = mapped_column(Text, default="{}", nullable=False)  # Dynamic columns
     web_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
@@ -100,7 +100,7 @@ class SharePointItem(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True)
     drive_id: Mapped[str] = mapped_column(String(36), ForeignKey("sharepoint_drives.id", ondelete="CASCADE"), nullable=False, index=True)
-    graph_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    graph_id: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     item_type: Mapped[str] = mapped_column(String(50), default="file", nullable=False)  # file, folder
     mime_type: Mapped[str | None] = mapped_column(String(100), nullable=True)

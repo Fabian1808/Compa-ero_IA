@@ -10,7 +10,7 @@ class OneDriveFile(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True)
-    graph_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    graph_id: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     file_type: Mapped[str] = mapped_column(String(50), default="file", nullable=False)  # file, folder
     mime_type: Mapped[str | None] = mapped_column(String(100), nullable=True)

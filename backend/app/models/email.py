@@ -9,7 +9,7 @@ class Email(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True)
-    graph_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    graph_id: Mapped[str] = mapped_column(String(255), nullable=False)
     thread_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("email_threads.id"), nullable=True, index=True)
     subject: Mapped[str] = mapped_column(String(500), nullable=False)
     body_preview: Mapped[str | None] = mapped_column(Text, nullable=True)

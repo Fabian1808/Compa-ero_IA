@@ -21,7 +21,7 @@ class Commitment(Base):
     source_email_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("emails.id"), nullable=True, index=True)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     committed_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    due_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
+    due_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     status: Mapped[CommitmentStatus] = mapped_column(SQLEnum(CommitmentStatus), default=CommitmentStatus.PENDING, nullable=False)
     confidence_score: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     related_task_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("tasks.id"), nullable=True, index=True)
